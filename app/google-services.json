@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "106510879025",
+    "project_id": "gaferreports",
+    "storage_bucket": "gaferreports.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:106510879025:android:9c5cf6353dc04945684810",
+        "android_client_info": {
+          "package_name": "com.example.gaferreports"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkF7uW_yGRmyBM1aumHFsTHBNYECC7HkE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

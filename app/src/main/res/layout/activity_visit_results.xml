@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#52DA52"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <!-- Espacio para los resultados de visita dinámicos -->
+    <LinearLayout
+        android:id="@+id/layoutVisitResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp" />
+
+    <!-- EditText que se muestra cuando se marca el CheckBox -->
+    <EditText
+        android:id="@+id/editTextAllTraps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Se registraron todas las trampas correctamente"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:background="@drawable/edittext_background"
+        android:inputType="none"/>
+
+    <EditText
+        android:id="@+id/editTextReplacedBait"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Se reemplazaron los cebos que no fueron consumidos"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:background="@drawable/edittext_background" />
+
+    <EditText
+        android:id="@+id/editTextInaccessibleTraps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Hay trampas que no son registradas por inaccesibilidad"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:background="@drawable/edittext_background" />
+
+    <EditText
+        android:id="@+id/editTextChangedTraps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Se cambiaron los tipos de trampas"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:background="@drawable/edittext_background" />
+
+    <!-- Botón para agregar nuevos resultados de visita -->
+    <Button
+        android:id="@+id/buttonAddVisitResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Agregar resultado de visita"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp" />
+
+    <!-- CheckBox para registrar todas las trampas -->
+    <CheckBox
+        android:id="@+id/checkBoxAllTraps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Las trampas se registraron correctamente"
+        android:layout_marginTop="1dp" />
+
+    <CheckBox
+        android:id="@+id/checkBoxInaccessibleTraps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hay trampas que no son registradas por inaccesibilidad"
+        android:layout_marginTop="1dp" />
+
+    <CheckBox
+        android:id="@+id/checkBoxReplacedBait"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Se reemplazaron los cebos que no fueron consumidos"
+        android:layout_marginTop="1dp" />
+
+    <CheckBox
+        android:id="@+id/checkBoxChangedTraps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Se cambiaron los tipos de trampas"
+        android:layout_marginTop="1dp" />
+
+    <Spinner
+        android:id="@+id/spinnerTechnician"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:entries="@array/technician_array"/>
+
+    <EditText
+        android:id="@+id/editTextClientName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre del Cliente"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edittext_background"/>
+
+    <EditText
+        android:id="@+id/editTextObservations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Observaciones"
+        android:inputType="textMultiLine"
+        android:layout_marginTop="16dp"
+        android:minLines="3"
+        android:maxLines="6"
+        android:gravity="top"
+        android:background="@drawable/edittext_background"/>
+
+    <Button
+        android:id="@+id/buttonSaveVisitResults"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guardar"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>
+    </ScrollView>

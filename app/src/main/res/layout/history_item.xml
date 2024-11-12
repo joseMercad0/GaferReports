@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/edittext_background"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fecha" />
+
+    <TextView
+        android:id="@+id/textViewTrapType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tipo de Trampa" />
+
+    <TextView
+        android:id="@+id/textViewPoisonType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tipo de Veneno" />
+
+    <TextView
+        android:id="@+id/textViewPoisonAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cantidad de Veneno" />
+
+    <TextView
+        android:id="@+id/textViewConsumption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hubo Consumo" />
+
+    <TextView
+        android:id="@+id/textViewConsumptionPercentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Consumo (%)" />
+
+    <TextView
+        android:id="@+id/textViewReplace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Habrá Reemplazo" />
+
+    <TextView
+        android:id="@+id/textViewReplaceAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cantidad de Reemplazo" />
+
+    <TextView
+        android:id="@+id/textViewReplacePoisonType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tipo de Veneno Reemplazado" />
+
+</LinearLayout>

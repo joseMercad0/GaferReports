@@ -1,0 +1,233 @@
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#52DA52">
+
+    <!-- Barra de Progreso -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:max="100"
+        android:progress="0" />
+
+    <TextView
+        android:id="@+id/txtProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cargando datos: 0%"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+    android:layout_below="@id/progressBar"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="16dp" />
+
+
+    <!-- Nueva sección de Inputs para las trampas -->
+    <LinearLayout
+        android:id="@+id/trapInputsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/txtProgress"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btn_generate_inicio_informe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generar Inicio Informe"
+            android:layout_below="@id/txtProgress"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:visibility="visible" />
+
+
+        <!-- Trampa mecánica -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trampa Mecánica"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btnDecrementTrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-" />
+
+            <EditText
+                android:id="@+id/inputTrapMechanic"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="0"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnIncrementTrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+" />
+        </LinearLayout>
+
+        <!-- Goma Adhesiva Activada -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Goma Adhesiva Activada"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btnDecrementGlue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-" />
+
+            <EditText
+                android:id="@+id/inputGlueActivated"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="0"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnIncrementGlue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+" />
+        </LinearLayout>
+
+        <!-- Roedores Encontrados -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Roedores Encontrados"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btnDecrementRodents"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-" />
+
+            <EditText
+                android:id="@+id/inputRodentsFound"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="0"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnIncrementRodents"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+" />
+        </LinearLayout>
+
+        <!-- Tipo de Cebo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tipo de Cebo"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+        <EditText
+            android:id="@+id/inputTipoCebo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tipo de Cebo" />
+
+        <!-- Peso -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Peso"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+        <EditText
+            android:id="@+id/inputPeso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Peso (g)" />
+
+        <!-- Compuesto Activo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Compuesto Activo"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+        <EditText
+            android:id="@+id/inputCompuestoActivo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Compuesto Activo" />
+
+        <!-- Fecha Vencimiento -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha Vencimiento"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+        <EditText
+            android:id="@+id/inputVencimiento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Vencimiento (MMM-yyyy)" />
+
+        <!-- Nro Lote -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nro Lote"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF" />
+        <EditText
+            android:id="@+id/inputNroLote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nro Lote" />
+    </LinearLayout>
+
+    <!-- Botón Generar PDF -->
+    <Button
+        android:id="@+id/btn_generate_pdf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generar PDF"
+        android:layout_below="@id/trapInputsContainer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:visibility="gone" />
+</RelativeLayout>

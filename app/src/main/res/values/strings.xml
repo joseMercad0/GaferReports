@@ -1,0 +1,146 @@
+<resources>
+    <string name="app_name">GaferReports</string>
+    <string name="show_password">Mostrar Contraseña</string>
+    <string name="hide_password">Ocultar Contraseña</string>
+    <string name="button">Button</string>
+    <string-array name="service_types">
+        <item>Desratización</item>
+        <item>Desinsectación</item>
+    </string-array>
+    <string-array name="enterprise_codes">
+        <item>6401</item>
+        <item>6402</item>
+        <item>6403</item>
+        <item>6404</item>
+        <item>6405</item>
+        <item>6406</item>
+        <item>6407</item>
+        <item>6408</item>
+        <item>6409</item>
+        <item>6410</item>
+        <item>6411</item>
+
+        <!-- Agrega más códigos según sea necesario -->
+    </string-array>
+    <string-array name="enterprise">
+        <item>Astoria</item>
+        <item>Murillo</item>
+        <item>Sedapar</item>
+        <item>Cribzan</item>
+        <item>Quesos</item>
+        <item>Linea</item>
+        <item>Marcoor</item>
+        <item>Tantana</item>
+        <item>Pachamama</item>
+        <item>Envasal</item>
+        <item>Unilac</item>
+
+    </string-array>
+
+    <string-array name="yes_no_options">
+        <item>Sí</item>
+        <item>No</item>
+    </string-array>
+
+
+    <string-array name="trap_types">
+        <item>Compact</item>
+        <item>Tunel</item>
+        <item>Master</item>
+        <item>Jaula</item>
+        <item>Mecanica de Golpe</item>
+        <item>Bloque</item>
+    </string-array>
+    <string-array name="poison_types">
+        <item>RoetMat Bloque</item>
+        <item>RoeMat Piramide</item>
+        <item>Final Bloque</item>
+    </string-array>
+    <string-array name="poison_amount_options">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="replace_amount_options">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="activities_array">
+        <item>Evaluación</item>
+        <item>Instalación</item>
+        <item>Monitoreo</item>
+        <item>Emergencia</item>
+    </string-array>
+
+    <string-array name="cebos_array">
+        <item>Bloque de Parafina 05 gr.</item>
+        <item>Bloque de Parafina 10 gr.</item>
+        <item>Pellets</item>
+        <item>Pasta</item>
+        <item>Líquido</item>
+        <item>Otro</item>
+    </string-array>
+
+    <string-array name="trampas_array">
+        <item>Mecánicas</item>
+        <item>Pegatina</item>
+        <item>Jaula</item>
+        <item>Otro</item>
+    </string-array>
+
+    <string-array name="roedor_array">
+        <item>R. Rattus</item>
+        <item>R. Norvegicus</item>
+        <item>Mus Musculus</item>
+        <item>Ninguno</item>
+    </string-array>
+
+    <string-array name="trampas_activadas_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+    <string-array name="technician_array">
+        <item>Issac</item>
+        <item>Técnico 2</item>
+        <item>Técnico 3</item>
+    </string-array>
+
+    <string-array name="percentage_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>25</item>
+        <item>30</item>
+        <item>35</item>
+        <item>40</item>
+        <item>45</item>
+        <item>50</item>
+        <item>55</item>
+        <item>60</item>
+        <item>65</item>
+        <item>70</item>
+        <item>75</item>
+        <item>80</item>
+        <item>85</item>
+        <item>90</item>
+        <item>95</item>
+        <item>100</item>
+    </string-array>
+
+
+</resources>
