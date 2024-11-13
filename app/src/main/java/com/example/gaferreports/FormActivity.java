@@ -195,7 +195,6 @@ public class FormActivity extends AppCompatActivity {
     }
 
 
-    ///BUG PARA QUE VUELVA A TRAP STATUS ACTIVITY
 
     private void saveTrapData() {
         boolean isNoAccessChecked = checkBoxNoAccess.isChecked();

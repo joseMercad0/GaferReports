@@ -752,7 +752,6 @@ public class PestCalculationActivity extends AppCompatActivity {
 
         // Agregar los datos de las trampas con coordenadas personalizadas
         // Dentro de la función que agrega datos de trampas
-        // Dentro de la función que agrega datos de trampas
         ref.child("trampas").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
