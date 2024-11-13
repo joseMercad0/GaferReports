@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FormActivity extends AppCompatActivity {
@@ -145,6 +146,8 @@ public class FormActivity extends AppCompatActivity {
                     HistoryEntry entry = dataSnapshot.getValue(HistoryEntry.class);
                     historyEntries.add(entry);
                 }
+                // Invertir el orden de la lista después de cargar todos los elementos
+                Collections.reverse(historyEntries);
                 historyAdapter.notifyDataSetChanged();
             }
 

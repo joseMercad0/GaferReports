@@ -766,6 +766,8 @@ public class PestCalculationActivity extends AppCompatActivity {
                     int consumptionPercentage = historySnapshot.child("consumptionPercentage").getValue(Integer.class);
                     String date = historySnapshot.child("date").getValue(String.class);
                     int replaceAmount = historySnapshot.child("replaceAmount").getValue(Integer.class);
+                    Boolean consumption = historySnapshot.child("consumption").getValue(Boolean.class);
+                    Boolean replace = historySnapshot.child("replace").getValue(Boolean.class);
 
                     // Verificar si trapType es nulo
                     if (trapType == null) {
@@ -788,6 +790,31 @@ public class PestCalculationActivity extends AppCompatActivity {
                         pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Color negro para el texto
                     } else {
                         pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Color negro para otros tipos
+                    }
+
+                    if (consumption != null && consumption) {
+                        PdfExtGState transparentState = new PdfExtGState();
+                        transparentState.setFillOpacity(0.5f);
+                        pdfCanvas.saveState();
+                        pdfCanvas.setExtGState(transparentState);
+                        pdfCanvas.setColor(new DeviceRgb(255, 0, 0), true); // Rojo
+                        pdfCanvas.rectangle(95, posY - 5, 321, 13);
+                        pdfCanvas.fill();
+                        pdfCanvas.restoreState();
+                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true);
+                    }
+
+                    // Condicional para replace:true - Dibuja un rectángulo celeste transparente
+                    if (replace != null && replace) {
+                        PdfExtGState transparentState = new PdfExtGState();
+                        transparentState.setFillOpacity(0.5f);
+                        pdfCanvas.saveState();
+                        pdfCanvas.setExtGState(transparentState);
+                        pdfCanvas.setColor(new DeviceRgb(0, 255, 255), true); // Celeste
+                        pdfCanvas.rectangle(95, posY - 5, 321, 13);
+                        pdfCanvas.fill();
+                        pdfCanvas.restoreState();
+                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true);
                     }
 
                     // Mostrar Tipo de Trampa
