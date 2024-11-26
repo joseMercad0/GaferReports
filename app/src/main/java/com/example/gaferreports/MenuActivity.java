@@ -109,6 +109,7 @@ public class MenuActivity extends AppCompatActivity {
         buttonTestPhotos = findViewById(R.id.buttonTestPhotos);
         buttonTestPhotos.setOnClickListener(v -> {
             Intent intent = new Intent(MenuActivity.this, TestPhotosActivity.class);
+            intent.putExtra("enterpriseCode", enterpriseCode);
             startActivity(intent);
         });
 

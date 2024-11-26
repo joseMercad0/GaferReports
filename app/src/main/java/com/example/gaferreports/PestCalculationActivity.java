@@ -146,19 +146,19 @@ public class PestCalculationActivity extends AppCompatActivity {
                 String codigoEmpresa = dataSnapshot.getKey();  // Obtener el código de empresa de la referencia actual
                 String fecha = dataSnapshot.child("fecha").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(90, 700);  // Coordenadas aproximadas para FECHA
+                pdfCanvas.moveText(90, 702);  // Coordenadas aproximadas para FECHA
                 pdfCanvas.showText(fecha);
                 pdfCanvas.endText();
 
                 String nombre = dataSnapshot.child("nombre").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(100, 688);  // Coordenadas aproximadas para USUARIO (nombre de la empresa)
+                pdfCanvas.moveText(100, 690);  // Coordenadas aproximadas para USUARIO (nombre de la empresa)
                 pdfCanvas.showText(nombre);
                 pdfCanvas.endText();
 
                 String ubicacion = dataSnapshot.child("ubicacion").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(110, 665);  // Coordenadas aproximadas para DIRECCION
+                pdfCanvas.moveText(110, 668);  // Coordenadas aproximadas para DIRECCION
                 pdfCanvas.showText(ubicacion);
                 pdfCanvas.endText();
 
