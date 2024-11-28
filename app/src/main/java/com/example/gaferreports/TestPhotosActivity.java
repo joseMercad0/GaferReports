@@ -146,36 +146,30 @@ public class TestPhotosActivity extends AppCompatActivity {
 
     private void generatePdfWithImages() {
         try {
-            // Load the existing PDF from assets
             InputStream inputStream = getAssets().open("ESPACIO FOTOS.pdf");
             PdfReader pdfReader = new PdfReader(inputStream);
 
-            // Create a new output PDF with the company name
             String outputFilePath = getExternalFilesDir(null) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf";
             PdfWriter pdfWriter = new PdfWriter(outputFilePath);
             PdfDocument pdfDocument = new PdfDocument(pdfReader, pdfWriter);
-
-            // Create Document object
             Document document = new Document(pdfDocument);
 
-            // Coordinates to center images on both pages (4 images per page)
+            // Coordenadas ajustadas
             float[][] imageCoordinates = {
-                    {150, 550}, {350, 550}, {150, 350}, {350, 350}, // Page 1
-                    {150, 550}, {350, 550}, {150, 350}, {350, 350}  // Page 2
+                    {100, 500}, {350, 500}, {100, 250}, {350, 250}, // Página 1
+                    {100, 500}, {350, 500}, {100, 250}, {350, 250}  // Página 2
             };
 
-            // Add the images to the PDF at specified coordinates
             for (int i = 0; i < imageUris.length; i++) {
                 if (imageUris[i] != null) {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUris[i]);
                     ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
                     Image image = new Image(imageData);
 
-                    // Adjust the image's position based on the page
                     int pageNumber = (i < 4) ? 1 : 2;
                     float[] coords = imageCoordinates[i];
                     image.setFixedPosition(pageNumber, coords[0], coords[1]);
-                    image.scaleToFit(150, 150); // Scale image
+                    image.scaleToFit(200, 200); // Escalar la imagen
 
                     document.add(image);
                 }
@@ -191,6 +185,7 @@ public class TestPhotosActivity extends AppCompatActivity {
             Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
     private byte[] bitmapToBytes(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

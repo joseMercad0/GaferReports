@@ -155,9 +155,11 @@ public class MenuActivity extends AppCompatActivity {
 
             // Lista de los archivos PDF que vamos a unir
             ArrayList<String> pdfFiles = new ArrayList<>();
+            pdfFiles.add(getExternalFilesDir(null) + "/inicio_informe_" + enterpriseName + ".pdf");
             pdfFiles.add(getExternalFilesDir(null) + "/Estacion_" + enterpriseName + ".pdf");
             pdfFiles.add(getExternalFilesDir(null) + "/Reporte_" + enterpriseName + ".pdf");
             pdfFiles.add(getExternalFilesDir(null) + "/Calculo_" + enterpriseName + ".pdf");
+            pdfFiles.add(getExternalFilesDir(null) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf"); 
 
             for (String pdfFilePath : pdfFiles) {
                 // Leer cada PDF y añadirlo al PDF final
@@ -180,6 +182,7 @@ public class MenuActivity extends AppCompatActivity {
             Toast.makeText(this, "Error al combinar los PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
     // Función para abrir el PDF generado
     private void openGeneratedPDF(String filePath) {
