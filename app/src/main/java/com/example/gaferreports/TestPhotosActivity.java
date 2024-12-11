@@ -92,11 +92,16 @@ public class TestPhotosActivity extends AppCompatActivity {
         Button generatePdfButton = findViewById(R.id.btn_generate_pdf);
         generatePdfButton.setOnClickListener(v -> {
             if (areImagesSelected()) {
-                generatePdfWithImages();
+                generatePdfWithImages();  // Genera el PDF
+                // Regresar a la actividad anterior (MenuActivity)
+                Intent intent = new Intent(TestPhotosActivity.this, MenuActivity.class);
+                startActivity(intent);
+                finish();  // Termina la actividad actual (TestPhotosActivity)
             } else {
                 Toast.makeText(this, "Por favor selecciona al menos una imagen", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     private void fetchCompanyName() {

@@ -139,6 +139,8 @@ public class PestCalculationActivity extends AppCompatActivity {
         pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true);
         pdfCanvas.setFontAndSize(PdfFontFactory.createFont(), 10);
 
+
+
         // Colocar los datos extraídos desde Firebase en el PDF en coordenadas específicas
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -158,20 +160,20 @@ public class PestCalculationActivity extends AppCompatActivity {
 
                 String ubicacion = dataSnapshot.child("ubicacion").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(110, 668);  // Coordenadas aproximadas para DIRECCION
+                pdfCanvas.moveText(106, 668);  // Coordenadas aproximadas para DIRECCION
                 pdfCanvas.showText(ubicacion);
                 pdfCanvas.endText();
 
                 String rubro = dataSnapshot.child("rubro").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(90, 653);  // Coordenadas aproximadas para RUBRO
+                pdfCanvas.moveText(93, 655);  // Coordenadas aproximadas para RUBRO
                 pdfCanvas.showText(rubro);
                 pdfCanvas.endText();
 
                 Long rucLong = dataSnapshot.child("ruc").getValue(Long.class); // Cambia a Long
                 String ruc = rucLong != null ? String.valueOf(rucLong) : ""; // Convertir a String
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(75, 676);  // Coordenadas aproximadas para RUC
+                pdfCanvas.moveText(78, 679);  // Coordenadas aproximadas para RUC
                 pdfCanvas.showText("" + ruc);
                 pdfCanvas.endText();
 
@@ -199,11 +201,21 @@ public class PestCalculationActivity extends AppCompatActivity {
                     posY -= 10;  // Ajustar la coordenada Y para la siguiente línea
                 }
 
+
                 // Agregar código de empresa
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(260, 720);  // Coordenadas aproximadas para el código de empresa
+                pdfCanvas.moveText(309, 725);  // Coordenadas aproximadas para el código de empresa
                 pdfCanvas.showText("" + codigoEmpresa);
                 pdfCanvas.endText();
+
+                // Colocar Técnico y Operador técnico
+                if (selectedTechnician != null) {
+                    pdfCanvas.beginText();
+                    pdfCanvas.moveText(109, 450); // Coordenadas ajustadas para el técnico
+                    pdfCanvas.showText(selectedTechnician + " – Operador técnico");
+                    pdfCanvas.endText();
+                }
+
 
                 // Cerrar el documento después de agregar todos los datos
                 document.close();

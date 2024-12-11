@@ -91,13 +91,20 @@ public class TrapStatusActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
                         HistoryEntry entry = entrySnapshot.getValue(HistoryEntry.class);
-                        if (entry != null && entry.isNoAccess()) {
-                            // Aquí debería cambiar el fondo y el texto del botón
-                            button.setBackgroundResource(R.drawable.button_background_inaccessible);
-                            button.setText("✗ Trampa " + trapNumber);
-                        } else if (entry != null) {
-                            button.setBackgroundResource(R.drawable.button_background_registered);
-                            button.setText("✓ Trampa " + trapNumber);
+                        if (entry != null) {
+                            if (entry.isNoAccess()) {
+                                // Cambiar el estilo para trampas inaccesibles
+                                button.setBackgroundResource(R.drawable.button_background_inaccessible);
+                                button.setText("✗ Trampa " + trapNumber);
+                            } else if (entry.isNoChanges()) {
+                                // Cambiar el estilo para trampas sin cambios
+                                button.setBackgroundResource(R.drawable.button_background_no_changes);
+                                button.setText("⟳ Trampa " + trapNumber); // Símbolo para 'Sin Cambios'
+                            } else {
+                                // Cambiar el estilo para trampas registradas normalmente
+                                button.setBackgroundResource(R.drawable.button_background_registered);
+                                button.setText("✓ Trampa " + trapNumber);
+                            }
                         }
                     }
                 }
@@ -109,6 +116,7 @@ public class TrapStatusActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
     private void openTrapForm(int trapNumber) {
@@ -133,7 +141,7 @@ public class TrapStatusActivity extends AppCompatActivity {
         empresaRef.child("trampas").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean allTrapsUpdated = true;  // Inicialmente, asumimos que todas las trampas están actualizadas
+                boolean allTrapsUpdated = true;
                 List<TrapEntry> traps = new ArrayList<>();
 
                 for (DataSnapshot trapSnapshot : snapshot.getChildren()) {
@@ -149,53 +157,48 @@ public class TrapStatusActivity extends AppCompatActivity {
                         }
                     }
 
-                    Boolean isReviewed = trapSnapshot.child("reviewed").getValue(Boolean.class);
-
-                    // Validación: Si la trampa es inaccesible (noAccess) o fue revisada
-                    if (lastEntry != null && lastEntry.isNoAccess()) {
-                        // Si la trampa está marcada como inaccesible
-                        TrapEntry trapEntry = new TrapEntry(
-                                "Inaccesible",
-                                "", // Otros campos vacíos
-                                0,
-                                false,
-                                0,
-                                false,
-                                0,
-                                "",
-                                true  // Indicar que es inaccesible
-                        );
-                        traps.add(trapEntry);
-                    } else if (isReviewed != null && isReviewed) {
-                        // Si la trampa fue revisada pero no está en el historial como 'no access'
-                        TrapEntry trapEntry = new TrapEntry(
-                                "Revisada",
-                                "",
-                                0,
-                                false,
-                                0,
-                                false,
-                                0,
-                                "",
-                                true  // Indicar que es revisada pero inaccesible
-                        );
-                        traps.add(trapEntry);
-                    } else if (lastEntry != null) {
-                        // Si la trampa fue registrada correctamente
-                        TrapEntry trapEntry = new TrapEntry(
-                                lastEntry.getTrapType(),
-                                lastEntry.getPoisonType(),
-                                lastEntry.getPoisonAmount(),
-                                lastEntry.isConsumption(),
-                                lastEntry.getConsumptionPercentage(),
-                                lastEntry.isReplace(),
-                                lastEntry.getReplaceAmount(),
-                                lastEntry.getReplacePoisonType(),
-                                lastEntry.isNoAccess()
-                        );
-                        traps.add(trapEntry);
+                    if (lastEntry != null) {
+                        if (lastEntry.isNoAccess()) {
+                            // Manejar trampas inaccesibles
+                            traps.add(new TrapEntry(
+                                    "Inaccesible",
+                                    "",
+                                    0,
+                                    false,
+                                    0,
+                                    false,
+                                    0,
+                                    "",
+                                    true
+                            ));
+                        } else if (lastEntry.isNoChanges()) {
+                            // Manejar trampas sin cambios
+                            traps.add(new TrapEntry(
+                                    lastEntry.getTrapType(),
+                                    lastEntry.getPoisonType(),
+                                    lastEntry.getPoisonAmount(),
+                                    lastEntry.isConsumption(),
+                                    lastEntry.getConsumptionPercentage(),
+                                    lastEntry.isReplace(),
+                                    lastEntry.getReplaceAmount(),
+                                    lastEntry.getReplacePoisonType(),
+                                    false
+                            ));
+                        } else {
+                            // Manejar trampas registradas normalmente
+                            traps.add(new TrapEntry(
+                                    lastEntry.getTrapType(),
+                                    lastEntry.getPoisonType(),
+                                    lastEntry.getPoisonAmount(),
+                                    lastEntry.isConsumption(),
+                                    lastEntry.getConsumptionPercentage(),
+                                    lastEntry.isReplace(),
+                                    lastEntry.getReplaceAmount(),
+                                    lastEntry.getReplacePoisonType(),
+                                    false
+                            ));
+                        }
                     } else {
-                        // Si alguna trampa no está actualizada o accesible
                         allTrapsUpdated = false;
                         break;
                     }
@@ -206,7 +209,7 @@ public class TrapStatusActivity extends AppCompatActivity {
                     intent.putExtra("enterpriseCode", enterpriseCode);
                     intent.putParcelableArrayListExtra("traps", (ArrayList<TrapEntry>) traps);
                     startActivity(intent);
-                    finish(); // Finalizar TrapStatusActivity
+                    finish();
                 } else {
                     Toast.makeText(TrapStatusActivity.this, "Algunas trampas no han sido actualizadas", Toast.LENGTH_SHORT).show();
                 }
@@ -218,6 +221,7 @@ public class TrapStatusActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
 }

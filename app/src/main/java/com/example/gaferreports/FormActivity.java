@@ -198,39 +198,32 @@ public class FormActivity extends AppCompatActivity {
 
     private void saveTrapData() {
         boolean isNoAccessChecked = checkBoxNoAccess.isChecked();
-        Log.d("FormActivity", "Checkbox No Access marcado: " + isNoAccessChecked);
+        boolean isNoChangesChecked = checkboxNoChanges.isChecked();
 
         if (isNoAccessChecked) {
-            // Si 'no access' está marcado, buscar la trampa anterior en el historial
+            // Guardar como 'No Access'
             trapRef.child("history").orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        // Obtener la fecha de la trampa anterior y guardarla como 'previousDate'
-                        for (DataSnapshot trapSnapshot : snapshot.getChildren()) {
-                            String previousDate = trapSnapshot.child("date").getValue(String.class);
-                            saveNoAccessTrapData(previousDate);  // Guardar los datos con la fecha de la trampa anterior
-                        }
-                    } else {
-                        // No hay trampas anteriores, no se guarda 'previousDate'
-                        saveNoAccessTrapData(null);
-                    }
+                    String previousDate = snapshot.exists() ? snapshot.getChildren().iterator().next().child("date").getValue(String.class) : null;
+                    saveNoAccessTrapData(previousDate);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(FormActivity.this, "Error al obtener la trampa anterior.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FormActivity.this, "Error al cargar datos anteriores.", Toast.LENGTH_SHORT).show();
                 }
             });
+        } else if (isNoChangesChecked) {
+            // Guardar como 'No Changes'
+            copyLastTrapData();
         } else {
-            // Si 'no access' no está marcado, guardar sin 'previousDate'
+            // Guardar normalmente
             saveNormalTrapData();
         }
     }
 
-
     private void saveNoAccessTrapData(String previousDate) {
-        // Guardar la entrada con los datos de no access, incluyendo 'previousDate'
         HistoryEntry entry = new HistoryEntry(
                 currentDate,
                 null,
@@ -241,17 +234,74 @@ public class FormActivity extends AppCompatActivity {
                 false,
                 0,
                 null,
-                true,  // Aquí se marca 'noAccess' como true
-                previousDate
+                true,
+                previousDate,
+                false
         );
 
-        // Guardar la entrada en Firebase
         trapRef.child("history").push().setValue(entry).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(FormActivity.this, "Datos de la trampa guardados correctamente.", Toast.LENGTH_SHORT).show();
                 redirectToTrapStatus();
             } else {
                 Toast.makeText(FormActivity.this, "Error al guardar los datos de la trampa.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void saveNoChangesTrapData(HistoryEntry lastEntry) {
+        HistoryEntry newEntry;
+
+        if (lastEntry != null) {
+            // Crear una nueva entrada basada en los datos previos
+            newEntry = new HistoryEntry(
+                    currentDate,
+                    lastEntry.getTrapType(),
+                    lastEntry.getPoisonType(),
+                    lastEntry.getPoisonAmount(),
+                    lastEntry.isConsumption(),
+                    lastEntry.getConsumptionPercentage(),
+                    lastEntry.isReplace(),
+                    lastEntry.getReplaceAmount(),
+                    lastEntry.getReplacePoisonType(),
+                    false,
+                    null,
+                    true    
+            );
+        } else {
+            // Crear una nueva entrada basada en los datos ingresados manualmente
+            String trapType = spinnerTrapType.getSelectedItem().toString();
+            String poisonType = spinnerPoisonType.getSelectedItem().toString();
+            int poisonAmount = Integer.parseInt(spinnerPoisonAmount.getSelectedItem().toString());
+            boolean consumption = radioGroupConsumption.getCheckedRadioButtonId() == R.id.radioButtonYesConsumption;
+            int consumptionPercentage = consumption ? Integer.parseInt(spinnerConsumptionPercentage.getSelectedItem().toString()) : 0;
+            boolean replace = radioGroupReplace.getCheckedRadioButtonId() == R.id.radioButtonYesReplace;
+            int replaceAmount = replace ? Integer.parseInt(spinnerReplaceAmount.getSelectedItem().toString()) : 0;
+            String replacePoisonType = replace ? spinnerReplacePoisonType.getSelectedItem().toString() : "";
+
+            newEntry = new HistoryEntry(
+                    currentDate,
+                    trapType,
+                    poisonType,
+                    poisonAmount,
+                    consumption,
+                    consumptionPercentage,
+                    replace,
+                    replaceAmount,
+                    replacePoisonType,
+                    false,
+                    null,
+                    true
+            );
+        }
+
+        // Guardar la nueva entrada en Firebase
+        trapRef.child("history").push().setValue(newEntry).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(FormActivity.this, "Datos guardados correctamente como 'No Changes'.", Toast.LENGTH_SHORT).show();
+                redirectToTrapStatus();
+            } else {
+                Toast.makeText(FormActivity.this, "Error al guardar los datos.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -273,8 +323,7 @@ public class FormActivity extends AppCompatActivity {
         HistoryEntry entry = new HistoryEntry(
                 currentDate, trapType, poisonType, poisonAmount,
                 consumption, consumptionPercentage, replace, replaceAmount,
-                replacePoisonType, false, null  // No hay 'previousDate' cuando 'no access' no está marcado
-        );
+                replacePoisonType, false, null  , false);
 
         // Guardar la entrada en Firebase
         trapRef.child("history").push().setValue(entry).addOnCompleteListener(task -> {
@@ -283,6 +332,32 @@ public class FormActivity extends AppCompatActivity {
                 redirectToTrapStatus();
             } else {
                 Toast.makeText(FormActivity.this, "Error al guardar los datos de la trampa.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void copyLastTrapData() {
+        trapRef.child("history").orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // Si hay datos previos, copiarlos
+                    for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
+                        HistoryEntry lastEntry = entrySnapshot.getValue(HistoryEntry.class);
+                        if (lastEntry != null) {
+                            saveNoChangesTrapData(lastEntry);
+                            return; // Salir después de guardar los datos copiados
+                        }
+                    }
+                }
+
+                // Si no hay datos previos, usar los datos manuales
+                saveNoChangesTrapData(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(FormActivity.this, "Error al cargar datos anteriores.", Toast.LENGTH_SHORT).show();
             }
         });
     }
