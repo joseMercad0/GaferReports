@@ -206,10 +206,19 @@ public class ServiceReportActivity extends AppCompatActivity {
         serviceReportData.put("horaSalida", formattedEndTime);
         serviceReportData.put("area", area); // Agregar el área
 
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("empresas").child(enterpriseCode);
+        // Actualizar Firebase con los datos de "horaSalida"
         databaseRef.updateChildren(serviceReportData).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Toast.makeText(ServiceReportActivity.this, "Hora de salida y área guardadas correctamente", Toast.LENGTH_SHORT).show();
+                // Modificar el PDF después de guardar en Firebase
+                try {
+                    modifyPDFWithEndTime(formattedEndTime);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(ServiceReportActivity.this, "Error al modificar el PDF.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Toast.makeText(ServiceReportActivity.this, "Hora de salida guardada y archivo modificado correctamente.", Toast.LENGTH_SHORT).show();
             } else {
                 String errorMessage = task.getException() != null ? task.getException().getMessage() : "Desconocido";
                 Toast.makeText(ServiceReportActivity.this, "Error al guardar la hora de salida: " + errorMessage, Toast.LENGTH_LONG).show();
@@ -217,6 +226,51 @@ public class ServiceReportActivity extends AppCompatActivity {
         });
     }
 
+    private void modifyPDFWithEndTime(String endTime) throws IOException {
+        String enterpriseName = textViewEnterpriseName.getText().toString();
+        if (enterpriseName.isEmpty()) {
+            Toast.makeText(this, "El nombre de la empresa no está disponible.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Ruta del PDF existente
+        File existingPDF = new File(getExternalFilesDir(null), "/Estacion_" + enterpriseName + ".pdf");
+
+        if (!existingPDF.exists()) {
+            Toast.makeText(this, "El archivo PDF no existe.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Ruta del nuevo PDF modificado
+        File modifiedPDF = new File(getExternalFilesDir(null), "/Estacion_Modificada_" + enterpriseName + ".pdf");
+
+        // Leer el PDF existente y crear uno nuevo
+        PdfReader reader = new PdfReader(existingPDF.getAbsolutePath());
+        PdfWriter writer = new PdfWriter(modifiedPDF.getAbsolutePath());
+        PdfDocument pdfDoc = new PdfDocument(reader, writer);
+        Document document = new Document(pdfDoc);
+
+        // Modificar el primer (o un específico) página del PDF
+        com.itextpdf.kernel.pdf.canvas.PdfCanvas pdfCanvas = new com.itextpdf.kernel.pdf.canvas.PdfCanvas(pdfDoc.getFirstPage());
+        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true);
+        pdfCanvas.setFontAndSize(PdfFontFactory.createFont(), 10);
+
+        // Posición donde se escribirá la hora de salida (ajustar según el diseño del PDF)
+        pdfCanvas.beginText();
+        pdfCanvas.moveText(500, 663); // Ajusta las coordenadas según sea necesario
+        pdfCanvas.showText(endTime);
+        pdfCanvas.endText();
+
+        document.close();
+
+        // Reemplazar el archivo original con el modificado
+        if (existingPDF.delete()) {
+            modifiedPDF.renameTo(existingPDF);
+            Toast.makeText(this, "El archivo 'Estacion' ha sido modificado.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Error al reemplazar el archivo PDF.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 
     private void generatePDF() throws IOException {
