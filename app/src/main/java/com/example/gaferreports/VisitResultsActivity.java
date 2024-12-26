@@ -32,6 +32,8 @@ public class VisitResultsActivity extends AppCompatActivity {
     private EditText editTextAllTraps;
     private CheckBox checkBoxInaccessibleTraps, checkBoxReplacedBait, checkBoxChangedTraps;
     private EditText editTextInaccessibleTraps, editTextReplacedBait, editTextChangedTraps;
+    private CheckBox checkBoxTechnician1, checkBoxTechnician2, checkBoxTechnician3;
+
 
 
     @Override
@@ -50,7 +52,9 @@ public class VisitResultsActivity extends AppCompatActivity {
         }
 
         layoutVisitResults = findViewById(R.id.layoutVisitResults);
-        spinnerTechnician = findViewById(R.id.spinnerTechnician);
+        checkBoxTechnician1 = findViewById(R.id.checkBoxTechnician1);
+        checkBoxTechnician2 = findViewById(R.id.checkBoxTechnician2);
+        checkBoxTechnician3 = findViewById(R.id.checkBoxTechnician3);
         editTextClientName = findViewById(R.id.editTextClientName);
         editTextObservations = findViewById(R.id.editTextObservations);
         buttonAddVisitResult = findViewById(R.id.buttonAddVisitResult);
@@ -178,7 +182,12 @@ public class VisitResultsActivity extends AppCompatActivity {
         }
 
         // Obtener el técnico seleccionado, el nombre del cliente y las observaciones
-        String selectedTechnician = spinnerTechnician.getSelectedItem().toString();
+        // Capturar técnicos seleccionados
+        List<String> selectedTechnicians = new ArrayList<>();
+        if (checkBoxTechnician1.isChecked()) selectedTechnicians.add("Alexander Gárate");
+        if (checkBoxTechnician2.isChecked()) selectedTechnicians.add("Wilmer Taipe");
+        if (checkBoxTechnician3.isChecked()) selectedTechnicians.add("Isaac Pusari");
+
         String clientName = editTextClientName.getText().toString();
         String observations = editTextObservations.getText().toString();
 
@@ -189,7 +198,7 @@ public class VisitResultsActivity extends AppCompatActivity {
                 .child("developed_activities");
 
         // Crear un objeto DevelopedActivity con los datos obtenidos
-        DevelopedActivity developedActivity = new DevelopedActivity(clientName, selectedTechnician, observations, visitResults);
+        DevelopedActivity developedActivity = new DevelopedActivity(clientName, selectedTechnicians, observations, visitResults);
 
         // Guardar los datos en Firebase
         developedActivitiesRef.child("datosVisit").setValue(developedActivity)
@@ -204,7 +213,7 @@ public class VisitResultsActivity extends AppCompatActivity {
         // Guardar datos en el Intent para regresar a ServiceReportActivity
         Intent resultIntent = new Intent();
         resultIntent.putStringArrayListExtra("visitResults", new ArrayList<>(visitResults));
-        resultIntent.putExtra("selectedTechnician", selectedTechnician);
+        resultIntent.putExtra("selectedTechnicians", new ArrayList<>(selectedTechnicians));
         resultIntent.putExtra("clientName", clientName);
         resultIntent.putExtra("observations", observations);
         setResult(RESULT_OK, resultIntent);
@@ -216,13 +225,13 @@ public class VisitResultsActivity extends AppCompatActivity {
     // Clase DevelopedActivity para organizar los datos que se guardarán en Firebase
     public static class DevelopedActivity {
         public String clientName;
-        public String selectedTechnician;
+        public List<String> selectedTechnicians;
         public String observations;
         public List<String> visitResults;
 
-        public DevelopedActivity(String clientName, String selectedTechnician, String observations, List<String> visitResults) {
+        public DevelopedActivity(String clientName, List<String> selectedTechnicians, String observations, List<String> visitResults) {
             this.clientName = clientName;
-            this.selectedTechnician = selectedTechnician;
+            this.selectedTechnicians = selectedTechnicians;
             this.observations = observations;
             this.visitResults = visitResults;
         }

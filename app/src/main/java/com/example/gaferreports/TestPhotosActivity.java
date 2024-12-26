@@ -161,8 +161,8 @@ public class TestPhotosActivity extends AppCompatActivity {
 
             // Coordenadas ajustadas
             float[][] imageCoordinates = {
-                    {100, 500}, {350, 500}, {100, 250}, {350, 250}, // Página 1
-                    {100, 500}, {350, 500}, {100, 250}, {350, 250}  // Página 2
+                    {100, 450}, {350, 450}, {100, 150}, {350, 150}, // Página 1
+                    {100, 500}, {350, 500}, {100, 200}, {350, 200}  // Página 2
             };
 
             for (int i = 0; i < imageUris.length; i++) {
@@ -174,7 +174,7 @@ public class TestPhotosActivity extends AppCompatActivity {
                     int pageNumber = (i < 4) ? 1 : 2;
                     float[] coords = imageCoordinates[i];
                     image.setFixedPosition(pageNumber, coords[0], coords[1]);
-                    image.scaleToFit(200, 200); // Escalar la imagen
+                    image.scaleToFit(250, 250); // Escalar la imagen
 
                     document.add(image);
                 }

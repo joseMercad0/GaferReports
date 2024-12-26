@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class PestCalculationActivity extends AppCompatActivity {
@@ -125,6 +127,8 @@ public class PestCalculationActivity extends AppCompatActivity {
         });
     }
     /////////////////////////////////////////////////
+
+
     private void generateInicioInformePDF() throws IOException {
         // Crear el archivo PDF con el nombre de la empresa
         File pdfFile = new File(getExternalFilesDir(null), "inicio_informe_" + enterpriseName + ".pdf");
@@ -148,48 +152,57 @@ public class PestCalculationActivity extends AppCompatActivity {
                 String codigoEmpresa = dataSnapshot.getKey();  // Obtener el código de empresa de la referencia actual
                 String fecha = dataSnapshot.child("fecha").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(90, 702);  // Coordenadas aproximadas para FECHA
+                pdfCanvas.moveText(150, 702);  // Coordenadas aproximadas para FECHA
                 pdfCanvas.showText(fecha);
                 pdfCanvas.endText();
 
                 String nombre = dataSnapshot.child("nombre").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(100, 690);  // Coordenadas aproximadas para USUARIO (nombre de la empresa)
+                pdfCanvas.moveText(150, 690);  // Coordenadas aproximadas para USUARIO (nombre de la empresa)
                 pdfCanvas.showText(nombre);
                 pdfCanvas.endText();
 
                 String ubicacion = dataSnapshot.child("ubicacion").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(106, 668);  // Coordenadas aproximadas para DIRECCION
+                pdfCanvas.moveText(150, 668);  // Coordenadas aproximadas para DIRECCION
                 pdfCanvas.showText(ubicacion);
                 pdfCanvas.endText();
 
                 String rubro = dataSnapshot.child("rubro").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(93, 655);  // Coordenadas aproximadas para RUBRO
+                pdfCanvas.moveText(150, 655);  // Coordenadas aproximadas para RUBRO
                 pdfCanvas.showText(rubro);
                 pdfCanvas.endText();
 
                 Long rucLong = dataSnapshot.child("ruc").getValue(Long.class); // Cambia a Long
                 String ruc = rucLong != null ? String.valueOf(rucLong) : ""; // Convertir a String
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(78, 679);  // Coordenadas aproximadas para RUC
+                pdfCanvas.moveText(150, 679);  // Coordenadas aproximadas para RUC
                 pdfCanvas.showText("" + ruc);
                 pdfCanvas.endText();
 
                 String horaIngreso = dataSnapshot.child("horaIngreso").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(100, 516);  // Coordenadas aproximadas para hora de ingreso
+                pdfCanvas.moveText(105, 526);  // Coordenadas aproximadas para hora de ingreso
                 pdfCanvas.showText("" + formatTime(horaIngreso));
                 pdfCanvas.endText();
 
                 String horaSalida = dataSnapshot.child("horaSalida").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(115, 504);  // Coordenadas aproximadas para hora de salida
+                pdfCanvas.moveText(118, 512);  // Coordenadas aproximadas para hora de salida
                 pdfCanvas.showText("" + formatTime(horaSalida));
                 pdfCanvas.endText();
 
-                int posY = 590;  // Coordenada Y inicial donde comenzarán a plasmarse los resultados
+                List<String> selectedTechnicians = new ArrayList<>();
+                for (DataSnapshot techSnapshot : dataSnapshot.child("developed_activities")
+                        .child("datosVisit")
+                        .child("selectedTechnicians")
+                        .getChildren()) {
+                    selectedTechnicians.add(techSnapshot.getValue(String.class));
+                }
+
+
+                int posY = 620;  // Coordenada Y inicial donde comenzarán a plasmarse los resultados
                 for (DataSnapshot resultSnapshot : dataSnapshot.child("developed_activities").child("datosVisit").child("visitResults").getChildren()) {
                     String result = resultSnapshot.getValue(String.class);
 
@@ -204,16 +217,29 @@ public class PestCalculationActivity extends AppCompatActivity {
 
                 // Agregar código de empresa
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(309, 725);  // Coordenadas aproximadas para el código de empresa
+                pdfCanvas.moveText(355, 732);  // Coordenadas aproximadas para el código de empresa
                 pdfCanvas.showText("" + codigoEmpresa);
                 pdfCanvas.endText();
 
                 // Colocar Técnico y Operador técnico
-                if (selectedTechnician != null) {
+                int posYtech = 475; // Coordenada Y inicial para listar técnicos
+                for (String technician : selectedTechnicians) {
+                    String technicianText = "\u2713 " + technician; // Símbolo de viñeta ✓ y nombre del técnico
+
+                    // Verificar si el técnico es uno de los mencionados y agregar el texto correspondiente
+                    if ("Wilmer Taipe".equals(technician) || "Isaac Pusari".equals(technician)) {
+                        technicianText += " – Operador técnico";
+                    } else if ("Alexander Gárate".equals(technician)) {
+                        technicianText += " – Supervisor";
+                    }
+
+                    // Mostrar el texto en el PDF
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(109, 450); // Coordenadas ajustadas para el técnico
-                    pdfCanvas.showText(selectedTechnician + " – Operador técnico");
+                    pdfCanvas.moveText(90, posYtech); // Ajustar la posición para cada técnico
+                    pdfCanvas.showText(technicianText); // Mostrar el nombre del técnico con su título
                     pdfCanvas.endText();
+
+                    posYtech -= 15; // Reducir la coordenada Y para la siguiente línea
                 }
 
 
@@ -566,7 +592,8 @@ public class PestCalculationActivity extends AppCompatActivity {
                     cebosRepuestos = 0;  // Si hay un error en la conversión, asignar 0
                 }
                 updateProgress(100, "Datos cargados. Generar PDF.");
-                btnGeneratePDF.setVisibility(View.VISIBLE);  // Mostrar el botón para generar el PDF
+                btnGeneratePDF.setVisibility(View.VISIBLE);
+                btnGenerateInicioInforme.setVisibility(View.VISIBLE); // Mostrar el botón para generar el PDF
             }
 
             @Override
@@ -645,16 +672,32 @@ public class PestCalculationActivity extends AppCompatActivity {
         pdfCanvas.showText(formatFecha(fecha));
         pdfCanvas.endText();
 
-        // Colocar el técnico
-        pdfCanvas.beginText();
-        pdfCanvas.moveText(100, 770);  // Coordenadas aproximadas para TECNICO
-        pdfCanvas.showText(selectedTechnician);
-        pdfCanvas.endText();
+        ref.child("developed_activities")
+                .child("datosVisit")
+                .child("selectedTechnicians")
+                .get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DataSnapshot dataSnapshot = task.getResult();  // Aquí obtienes el DataSnapshot
+                        List<String> selectedTechnicians = new ArrayList<>();
+                        for (DataSnapshot techSnapshot : dataSnapshot.getChildren()) {
+                            selectedTechnicians.add(techSnapshot.getValue(String.class));
+                        }
+                        String techniciansText = String.join(", ", selectedTechnicians);
+
+                        // Ahora puedes usar 'techniciansText' en el PDF
+                        pdfCanvas.beginText();
+                        pdfCanvas.moveText(100, 770);  // Coordenadas aproximadas para TECNICO
+                        pdfCanvas.showText(techniciansText);
+                        pdfCanvas.endText();
+                    } else {
+                        Toast.makeText(PestCalculationActivity.this, "Error al cargar los técnicos", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         // Colocar el supervisor
         pdfCanvas.beginText();
         pdfCanvas.moveText(100, 755);  // Coordenadas aproximadas para SUPERVISOR
-        pdfCanvas.showText("ALEXANDER GARATE");
+        pdfCanvas.showText("Alexander Garate");
         pdfCanvas.endText();
 
         // Colocar la actividad

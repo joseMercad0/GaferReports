@@ -24,7 +24,7 @@
     <string-array name="enterprise">
         <item>Astoria</item>
         <item>Murillo</item>
-        <item>Sedapar</item>
+        <item>Sagrado</item>
         <item>Cribzan</item>
         <item>Quesos</item>
         <item>Linea</item>
@@ -44,6 +44,7 @@
 
     <string-array name="trap_types">
         <item>Compact</item>
+        <item>Pegatina</item>
         <item>Tunel</item>
         <item>Master</item>
         <item>Jaula</item>
@@ -51,6 +52,7 @@
         <item>Bloque</item>
     </string-array>
     <string-array name="poison_types">
+        <item>Ninguna</item>
         <item>RoetMat Bloque</item>
         <item>RoeMat Piramide</item>
         <item>Final Bloque</item>
@@ -112,11 +114,7 @@
         <item>10</item>
     </string-array>
 
-    <string-array name="technician_array">
-        <item>Issac</item>
-        <item>Ezreal</item>
-        <item>Técnico 3</item>
-    </string-array>
+
 
     <string-array name="percentage_values">
         <item>0</item>

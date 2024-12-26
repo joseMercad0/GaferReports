@@ -57,13 +57,7 @@
         android:background="@drawable/edittext_background" />
 
     <!-- Botón para agregar nuevos resultados de visita -->
-    <Button
-        android:id="@+id/buttonAddVisitResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Agregar resultado de visita"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp" />
+
 
     <!-- CheckBox para registrar todas las trampas -->
     <CheckBox
@@ -94,14 +88,38 @@
         android:text="Se cambiaron los tipos de trampas"
         android:layout_marginTop="1dp" />
 
-    <Spinner
-        android:id="@+id/spinnerTechnician"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:entries="@array/technician_array"/>
+        <Button
+            android:id="@+id/buttonAddVisitResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Agregar resultado de visita"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp" />
 
-    <EditText
+        <!-- Sección de CheckBoxes para seleccionar técnicos -->
+        <CheckBox
+            android:id="@+id/checkBoxTechnician1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alexander Gárate – Supervisor"
+            android:layout_marginTop="3dp" />
+
+        <CheckBox
+            android:id="@+id/checkBoxTechnician2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Wilmer Taipe – Operador técnico"
+            android:layout_marginTop="3dp" />
+
+
+        <CheckBox
+            android:id="@+id/checkBoxTechnician3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="Isaac Pusari – Operador técnico" />
+
+        <EditText
         android:id="@+id/editTextClientName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
