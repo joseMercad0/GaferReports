@@ -197,4 +197,10 @@ public class TestPhotosActivity extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         return outputStream.toByteArray();
     }
+
+    @Override
+    public void onBackPressed() {
+        // Dejar este método vacío o mostrar un mensaje si es necesario.
+        // No llamar a super.onBackPressed() para deshabilitar el comportamiento predeterminado.
+    }
 }

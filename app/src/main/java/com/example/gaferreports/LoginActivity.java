@@ -136,4 +136,10 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    @Override
+    public void onBackPressed() {
+        // Dejar este método vacío o mostrar un mensaje si es necesario.
+        // No llamar a super.onBackPressed() para deshabilitar el comportamiento predeterminado.
+    }
 }

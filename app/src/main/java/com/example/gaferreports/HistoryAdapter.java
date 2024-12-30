@@ -35,7 +35,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         } else {
             // Si la entrada está vacía, puedes omitirla o mostrar un mensaje vacío
             // Aquí se podría ocultar la vista o mostrar algo diferente
-            holder.itemView.setVisibility(View.GONE);  // Ocultar la vista si es nula o vacía
+            holder.itemView.setVisibility(View.INVISIBLE); // Se usa INVISIBLE para evitar problemas de indexación
+            ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+            params.height = 0; // Altura 0 para "ocultar" el elemento
+            holder.itemView.setLayoutParams(params);
         }
     }
 
