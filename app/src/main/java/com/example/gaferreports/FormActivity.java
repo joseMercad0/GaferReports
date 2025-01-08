@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -45,11 +46,21 @@ public class FormActivity extends AppCompatActivity {
     private CheckBox checkBoxNoAccess;
     private CheckBox checkboxNoChanges;
     private TrapEntry currentTrapEntry;
+    private CheckBox checkBoxPerdido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form);
+
+        TextView textViewTitle = findViewById(R.id.textViewTitle);
+
+        int trapNumber = getIntent().getIntExtra("trapNumber", -1);
+        if (trapNumber != -1) { // Verificar que se recibió un número válido
+            textViewTitle.setText("Formulario de Trampa N° " + trapNumber);
+        } else {
+            textViewTitle.setText("Formulario de Trampa"); // Título predeterminado
+        }
 
         spinnerTrapType = findViewById(R.id.spinnerTrapType);
         spinnerPoisonType = findViewById(R.id.spinnerPoisonType);
@@ -67,6 +78,12 @@ public class FormActivity extends AppCompatActivity {
         trapNumber = getIntent().getIntExtra("trapNumber", -1);
         currentDate = getIntent().getStringExtra("currentDate");
 
+        Button buttonCancel = findViewById(R.id.buttonCancel);
+
+
+        checkBoxPerdido = findViewById(R.id.checkBoxPerdido);
+        setupCheckBoxPerdido();
+
         currentDate = getIntent().getStringExtra("date");
 
         trapRef = FirebaseDatabase.getInstance().getReference("empresas").child(enterpriseCode).child("trampas").child(String.valueOf(trapNumber));
@@ -81,10 +98,31 @@ public class FormActivity extends AppCompatActivity {
             setFormEnabled(!isChecked);
         });
 
+        buttonCancel.setOnClickListener(v -> {
+            Intent intent = new Intent(FormActivity.this, TrapStatusActivity.class);
+
+            // Pasar datos adicionales si es necesario
+            intent.putExtra("enterpriseCode", getIntent().getStringExtra("enterpriseCode"));
+            intent.putExtra("date", getIntent().getStringExtra("date"));
+
+            startActivity(intent);
+            finish(); // Finaliza FormActivity para evitar volver con el botón de atrás
+        });
+
         buttonSave.setOnClickListener(v -> showConfirmationDialog());
     }
 
-
+    private void setupCheckBoxPerdido() {
+        checkBoxPerdido.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                checkBoxNoAccess.setChecked(false); // Desmarcar noAccess
+                checkboxNoChanges.setChecked(false); // Desmarcar noChanges
+                setFormEnabled(false); // Deshabilitar el formulario
+            } else {
+                setFormEnabled(true); // Rehabilitar el formulario si no está marcado
+            }
+        });
+    }
 
     private void setupSpinners() {
         ArrayAdapter<CharSequence> trapTypeAdapter = ArrayAdapter.createFromResource(this, R.array.trap_types, android.R.layout.simple_spinner_item);
@@ -194,13 +232,15 @@ public class FormActivity extends AppCompatActivity {
         spinnerReplacePoisonType.setEnabled(enabled);
     }
 
-
-
     private void saveTrapData() {
         boolean isNoAccessChecked = checkBoxNoAccess.isChecked();
         boolean isNoChangesChecked = checkboxNoChanges.isChecked();
+        boolean isPerdidoChecked = checkBoxPerdido.isChecked();
 
-        if (isNoAccessChecked) {
+        if (isPerdidoChecked) {
+            // Guardar como 'perdido'
+            saveLostTrapData();
+        } else if (isNoAccessChecked) {
             // Guardar como 'No Access'
             trapRef.child("history").orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -223,6 +263,32 @@ public class FormActivity extends AppCompatActivity {
         }
     }
 
+    private void saveLostTrapData() {
+        HistoryEntry entry = new HistoryEntry(
+                currentDate,
+                null,
+                null,
+                0,
+                false,
+                0,
+                false,
+                0,
+                null,
+                false,
+                null,
+                false,
+                true
+        );
+
+        trapRef.child("history").push().setValue(entry).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(FormActivity.this, "Datos guardados como 'Trampa perdida'.", Toast.LENGTH_SHORT).show();
+                redirectToTrapStatus();
+            } else {
+                Toast.makeText(FormActivity.this, "Error al guardar los datos de la trampa.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private void saveNoAccessTrapData(String previousDate) {
         HistoryEntry entry = new HistoryEntry(
                 currentDate,
@@ -236,6 +302,7 @@ public class FormActivity extends AppCompatActivity {
                 null,
                 true,
                 previousDate,
+                false,
                 false
         );
 
@@ -266,7 +333,8 @@ public class FormActivity extends AppCompatActivity {
                     lastEntry.getReplacePoisonType(),
                     false,
                     null,
-                    true    
+                    true,
+                    false
             );
         } else {
             // Crear una nueva entrada basada en los datos ingresados manualmente
@@ -291,7 +359,8 @@ public class FormActivity extends AppCompatActivity {
                     replacePoisonType,
                     false,
                     null,
-                    true
+                    true,
+                    false
             );
         }
 
@@ -323,7 +392,7 @@ public class FormActivity extends AppCompatActivity {
         HistoryEntry entry = new HistoryEntry(
                 currentDate, trapType, poisonType, poisonAmount,
                 consumption, consumptionPercentage, replace, replaceAmount,
-                replacePoisonType, false, null  , false);
+                replacePoisonType, false, null  , false,false);
 
         // Guardar la entrada en Firebase
         trapRef.child("history").push().setValue(entry).addOnCompleteListener(task -> {

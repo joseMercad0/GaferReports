@@ -17,12 +17,14 @@
             android:textSize="18sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:padding="8dp" />
+            android:padding="8dp"
+            />
 
         <Spinner
             android:id="@+id/spinnerActivities"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            style="@style/CustomSpinnerStyle"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -51,14 +53,14 @@
             android:layout_height="wrap_content"
             android:hint="Seleccionar Cebos"
             android:textSize="16sp"
-
+            style="@style/CustomSpinnerStyle"
             android:padding="8dp"
             android:gravity="center_vertical" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cebos Consumidos"
+            android:text="Cebos Registrados"
             android:textSize="16sp"
             android:paddingTop="8dp" />
 
@@ -96,7 +98,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/editTextCebosRepuestas"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            style="@style/CustomSpinnerStyle"
+            />
 
 
 
@@ -115,7 +119,8 @@
             android:textSize="16sp"
 
             android:padding="8dp"
-            android:gravity="center_vertical" />
+            android:gravity="center_vertical"
+            style="@style/CustomSpinnerStyle"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -132,7 +137,8 @@
             android:textSize="16sp"
 
             android:padding="8dp"
-            android:gravity="center_vertical" />
+            android:gravity="center_vertical"
+            style="@style/CustomSpinnerStyle"/>
 
         <Button
             android:id="@+id/buttonSave"

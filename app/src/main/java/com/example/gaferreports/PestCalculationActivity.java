@@ -812,8 +812,9 @@ public class PestCalculationActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int posY = 638; // Coordenada Y para la posición del texto de las trampas
                 int trapsCount = 0;
+
                 for (DataSnapshot trapSnapshot : snapshot.getChildren()) {
-                    DataSnapshot historySnapshot = trapSnapshot.child("history").getChildren().iterator().next(); // Obtener la última entrada del historial
+                    DataSnapshot historySnapshot = trapSnapshot.child("history").getChildren().iterator().next(); // Última entrada del historial
 
                     String trapType = historySnapshot.child("trapType").getValue(String.class);
                     int poisonAmount = historySnapshot.child("poisonAmount").getValue(Integer.class);
@@ -822,98 +823,71 @@ public class PestCalculationActivity extends AppCompatActivity {
                     int replaceAmount = historySnapshot.child("replaceAmount").getValue(Integer.class);
                     Boolean consumption = historySnapshot.child("consumption").getValue(Boolean.class);
                     Boolean replace = historySnapshot.child("replace").getValue(Boolean.class);
+                    Boolean noAccess = historySnapshot.child("noAccess").getValue(Boolean.class);
+                    Boolean noChanges = historySnapshot.child("noChanges").getValue(Boolean.class);
+                    Boolean perdido = historySnapshot.child("perdido").getValue(Boolean.class);
 
-                    // Verificar si trapType es nulo
-                    if (trapType == null) {
-                        trapType = "Inaccesible";
+                    // Verificar condiciones y aplicar colores
+                    PdfExtGState transparentState = new PdfExtGState();
+                    transparentState.setFillOpacity(0.5f);
+                    pdfCanvas.saveState();
+                    pdfCanvas.setExtGState(transparentState);
 
-                        // Crear un estado de transparencia con opacidad (por ejemplo, 0.5 para 50%)
-                        PdfExtGState transparentState = new PdfExtGState();
-                        transparentState.setFillOpacity(0.5f); // Ajusta la opacidad entre 0 (transparente) y 1 (opaco)
-
-                        // Aplicar el estado de transparencia al canvas
-                        pdfCanvas.saveState();
-                        pdfCanvas.setExtGState(transparentState);
-
-                        // Dibuja un rectángulo amarillo transparente detrás del texto
-                        pdfCanvas.setColor(new DeviceRgb(255, 255, 0), true); // Color amarillo
-                        pdfCanvas.rectangle(95, posY - 5, 321, 13); // Rectángulo (x, y, ancho, alto)
-                        pdfCanvas.fill(); // Rellenar el rectángulo con color
-
-                        pdfCanvas.restoreState();
-                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Color negro para el texto
-                    } else {
-                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Color negro para otros tipos
-                    }
-
-                    if (consumption != null && consumption) {
-                        PdfExtGState transparentState = new PdfExtGState();
-                        transparentState.setFillOpacity(0.5f);
-                        pdfCanvas.saveState();
-                        pdfCanvas.setExtGState(transparentState);
-                        pdfCanvas.setColor(new DeviceRgb(255, 0, 0), true); // Rojo
-                        pdfCanvas.rectangle(95, posY - 5, 321, 13);
-                        pdfCanvas.fill();
-                        pdfCanvas.restoreState();
-                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true);
-                    }
-
-                    // Condicional para replace:true - Dibuja un rectángulo celeste transparente
-                    if (replace != null && replace) {
-                        PdfExtGState transparentState = new PdfExtGState();
-                        transparentState.setFillOpacity(0.5f);
-                        pdfCanvas.saveState();
-                        pdfCanvas.setExtGState(transparentState);
+                    if (Boolean.TRUE.equals(noAccess) && !Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido) && !Boolean.TRUE.equals(replace) && !Boolean.TRUE.equals(consumption)) {
+                        pdfCanvas.setColor(new DeviceRgb(255, 255, 0), true); // Amarillo
+                    } else if (!Boolean.TRUE.equals(noAccess) && Boolean.TRUE.equals(replace) && !Boolean.TRUE.equals(consumption) && !Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido)) {
                         pdfCanvas.setColor(new DeviceRgb(0, 255, 255), true); // Celeste
-                        pdfCanvas.rectangle(95, posY - 5, 321, 13);
-                        pdfCanvas.fill();
-                        pdfCanvas.restoreState();
-                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true);
+                    } else if (!Boolean.TRUE.equals(noAccess) && Boolean.TRUE.equals(replace) && Boolean.TRUE.equals(consumption) && !Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido)) {
+                        pdfCanvas.setColor(new DeviceRgb(255, 0, 0), true); // Rojo
+                    } else if (!Boolean.TRUE.equals(noAccess) && Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido)) {
+                        pdfCanvas.setColor(new DeviceRgb(255, 255, 255), true); // Blanco
+                    } else if (!Boolean.TRUE.equals(noAccess) && !Boolean.TRUE.equals(noChanges) && Boolean.TRUE.equals(perdido)) {
+                        pdfCanvas.setColor(new DeviceRgb(128, 128, 128), true); // Plomo
+                    } else {
+                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Negro por defecto
                     }
 
-                    // Mostrar Tipo de Trampa
-                    pdfCanvas.beginText();
-                    pdfCanvas.moveText(95, posY);  // Ajustar coordenadas para la posición del texto
-                    pdfCanvas.showText(trapType);
-                    pdfCanvas.endText();
+                    pdfCanvas.rectangle(95, posY - 5, 321, 13); // Dibujar rectángulo
+                    pdfCanvas.fill();
+                    pdfCanvas.restoreState();
+                    pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Color texto
 
-                    // Mostrar Cantidad de Cebo
+                    // Mostrar datos
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(200, posY);  // Coordenadas ajustadas
-                    pdfCanvas.showText("" + poisonAmount + "");
-                    pdfCanvas.endText();
-
-                    // Mostrar Actividad (en porcentaje)
-                    pdfCanvas.beginText();
-                    pdfCanvas.moveText(250, posY);  // Coordenadas ajustadas
-                    pdfCanvas.showText("" + consumptionPercentage + "%");
+                    pdfCanvas.moveText(95, posY);
+                    pdfCanvas.showText(trapType == null ? "Inaccesible" : trapType);
                     pdfCanvas.endText();
 
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(300, posY);  // Coordenadas ajustadas para ReplaceAmount
+                    pdfCanvas.moveText(200, posY);
+                    pdfCanvas.showText(String.valueOf(poisonAmount));
+                    pdfCanvas.endText();
+
+                    pdfCanvas.beginText();
+                    pdfCanvas.moveText(250, posY);
+                    pdfCanvas.showText(consumptionPercentage + "%");
+                    pdfCanvas.endText();
+
+                    pdfCanvas.beginText();
+                    pdfCanvas.moveText(300, posY);
                     pdfCanvas.showText(replaceAmount == 0 ? "--" : String.valueOf(replaceAmount));
                     pdfCanvas.endText();
 
-                    // Mostrar Fecha
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(350, posY);  // Coordenadas ajustadas
+                    pdfCanvas.moveText(350, posY);
                     pdfCanvas.showText(formatShortDate(date));
                     pdfCanvas.endText();
 
-                    // Ajustar la coordenada Y para la siguiente línea
                     posY -= 15;
 
                     if (trapsCount == 24) {
-                        posY = 950;  // Reiniciar Y para la segunda columna
+                        posY = 950; // Reiniciar posición Y
                     }
                     trapsCount++;
                 }
 
-                // Cerrar el documento después de agregar todos los datos
                 document.close();
-
-                Toast.makeText(PestCalculationActivity.this, "PDF generado exitosamente: " + pdfFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
-
+                Toast.makeText(PestCalculationActivity.this, "PDF generado exitosamente.", Toast.LENGTH_LONG).show();
                 // Navegar de regreso al menú principal
                 Intent intent = new Intent(PestCalculationActivity.this, MenuActivity.class);
                 intent.putExtra("enterpriseCode", enterpriseCode);
@@ -923,9 +897,10 @@ public class PestCalculationActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(PestCalculationActivity.this, "Error al cargar las trampas", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PestCalculationActivity.this, "Error al cargar trampas.", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     @Override

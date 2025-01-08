@@ -92,7 +92,11 @@ public class TrapStatusActivity extends AppCompatActivity {
                     for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
                         HistoryEntry entry = entrySnapshot.getValue(HistoryEntry.class);
                         if (entry != null) {
-                            if (entry.isNoAccess()) {
+                            if (entry.isPerdido()) {
+                                // Cambiar el estilo para trampas perdidas
+                                button.setBackgroundResource(R.drawable.button_background_lost);
+                                button.setText("⚠ Trampa " + trapNumber); // Indicador para trampa perdida
+                            } else if (entry.isNoAccess()) {
                                 // Cambiar el estilo para trampas inaccesibles
                                 button.setBackgroundResource(R.drawable.button_background_inaccessible);
                                 button.setText("✗ Trampa " + trapNumber);
@@ -122,7 +126,7 @@ public class TrapStatusActivity extends AppCompatActivity {
     private void openTrapForm(int trapNumber) {
         Intent intent = new Intent(TrapStatusActivity.this, FormActivity.class);
         intent.putExtra("enterpriseCode", enterpriseCode);
-        intent.putExtra("trapNumber", trapNumber);
+        intent.putExtra("trapNumber", trapNumber); // Pasar el número de la trampa
         intent.putExtra("date", currentDate);
         startActivity(intent);
     }
@@ -158,7 +162,21 @@ public class TrapStatusActivity extends AppCompatActivity {
                     }
 
                     if (lastEntry != null) {
-                        if (lastEntry.isNoAccess()) {
+                        if (lastEntry.isPerdido()) {
+                            // Manejar trampas perdidas
+                            traps.add(new TrapEntry(
+                                    "Perdida",
+                                    "",
+                                    0,
+                                    false,
+                                    0,
+                                    false,
+                                    0,
+                                    "",
+                                    false,
+                                    true // Perdido
+                            ));
+                        } else if (lastEntry.isNoAccess()) {
                             // Manejar trampas inaccesibles
                             traps.add(new TrapEntry(
                                     "Inaccesible",
@@ -169,7 +187,8 @@ public class TrapStatusActivity extends AppCompatActivity {
                                     false,
                                     0,
                                     "",
-                                    true
+                                    true,
+                                    false
                             ));
                         } else if (lastEntry.isNoChanges()) {
                             // Manejar trampas sin cambios
@@ -182,6 +201,7 @@ public class TrapStatusActivity extends AppCompatActivity {
                                     lastEntry.isReplace(),
                                     lastEntry.getReplaceAmount(),
                                     lastEntry.getReplacePoisonType(),
+                                    false,
                                     false
                             ));
                         } else {
@@ -195,6 +215,7 @@ public class TrapStatusActivity extends AppCompatActivity {
                                     lastEntry.isReplace(),
                                     lastEntry.getReplaceAmount(),
                                     lastEntry.getReplacePoisonType(),
+                                    false,
                                     false
                             ));
                         }
@@ -221,6 +242,7 @@ public class TrapStatusActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     public void onBackPressed() {

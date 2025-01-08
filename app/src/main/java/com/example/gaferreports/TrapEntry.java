@@ -13,9 +13,10 @@ public class TrapEntry implements Parcelable {
     private int replaceAmount;
     private String replacePoisonType;
     private boolean noAccess;
+    private boolean perdido;
 
     // Constructor
-    public TrapEntry(String trapType, String poisonType, int poisonAmount, boolean consumption, int consumptionPercentage, boolean replace, int replaceAmount, String replacePoisonType, boolean noAccess) {
+    public TrapEntry(String trapType, String poisonType, int poisonAmount, boolean consumption, int consumptionPercentage, boolean replace, int replaceAmount, String replacePoisonType, boolean noAccess, boolean perdido) {
         this.trapType = trapType;
         this.poisonType = poisonType;
         this.poisonAmount = poisonAmount;
@@ -101,6 +102,15 @@ public class TrapEntry implements Parcelable {
     public void setNoAccess(boolean noAccess) {
         this.noAccess = noAccess;
     }
+
+    public boolean isPerdido() {
+        return perdido;
+    }
+
+    public void setPerdido(boolean perdido) {
+        this.perdido = perdido;
+    }
+
 
     // Parcelable implementation
     protected TrapEntry(Parcel in) {

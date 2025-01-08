@@ -19,6 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <!-- Tipo de Trampa -->
     <TextView
         android:id="@+id/textViewTrapType"
@@ -41,7 +42,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/textViewTrapType"
-        app:layout_constraintTop_toBottomOf="@id/textViewTitle" />
+        app:layout_constraintTop_toBottomOf="@id/textViewTitle"
+        style="@style/CustomSpinnerStyle"/>
 
     <!-- Tipo de Veneno -->
     <TextView
@@ -55,6 +57,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/spinnerTrapType" />
 
+    <!-- Cantidad de Veneno -->
     <Spinner
         android:id="@+id/spinnerPoisonType"
         android:layout_width="0dp"
@@ -63,11 +66,11 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/textViewPoisonType"
-        app:layout_constraintTop_toBottomOf="@id/spinnerTrapType" />
+        app:layout_constraintTop_toBottomOf="@id/spinnerTrapType"
+        style="@style/CustomSpinnerStyle"/>
 
-    <!-- Cantidad de Veneno -->
     <TextView
         android:id="@+id/textViewPoisonAmount"
         android:layout_width="wrap_content"
@@ -89,7 +92,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/textViewPoisonAmount"
-        app:layout_constraintTop_toBottomOf="@id/spinnerPoisonType" />
+        app:layout_constraintTop_toBottomOf="@id/spinnerPoisonType"
+        style="@style/CustomSpinnerStyle"/>
 
     <!-- Hubo Consumo? -->
     <TextView
@@ -97,7 +101,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="30dp"
         android:text="Hubo Consumo?"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -108,7 +112,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -152,26 +156,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="16dp"
         android:layout_marginTop="22dp"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="16dp"
+        style="@style/CustomSpinnerStyle"/>
 
     <!-- Habrá Reemplazo -->
+
     <TextView
         android:id="@+id/textViewReplace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="8dp"
         android:text="Habrá Reemplazo?"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/spinnerConsumptionPercentage" />
 
+    <!-- Cantidad de Reemplazo -->
     <RadioGroup
         android:id="@+id/radioGroupReplace"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -192,7 +199,6 @@
             android:text="No" />
     </RadioGroup>
 
-    <!-- Cantidad de Reemplazo -->
     <TextView
         android:id="@+id/textViewReplaceAmount"
         android:layout_width="wrap_content"
@@ -215,7 +221,8 @@
         app:layout_constraintTop_toBottomOf="@id/radioGroupReplace"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
+        android:layout_marginEnd="16dp"
+        style="@style/CustomSpinnerStyle"/>
 
     <TextView
         android:id="@+id/textViewReplacePoisonType"
@@ -239,7 +246,8 @@
         app:layout_constraintTop_toBottomOf="@id/spinnerReplaceAmount"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
+        android:layout_marginEnd="16dp"
+        style="@style/CustomSpinnerStyle"/>
 
         <CheckBox
             android:id="@+id/checkBoxNoAccess"
@@ -259,18 +267,38 @@
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/checkBoxNoAccess" />
+    <CheckBox
+        android:id="@+id/checkBoxPerdido"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="Trampa perdida"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/checkbox_no_changes"/>
 
+
+    <Button
+        android:id="@+id/buttonCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Cancelar"
+        app:layout_constraintEnd_toStartOf="@id/buttonSave"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/checkBoxPerdido" />
+
+
+    <!-- Historial -->
     <Button
         android:id="@+id/buttonSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="4dp"
         android:text="Guardar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/checkBoxNoAccess" />
+        app:layout_constraintStart_toEndOf="@id/buttonCancel"
+        app:layout_constraintTop_toBottomOf="@id/checkBoxPerdido" />
 
-    <!-- Historial -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewHistory"
         android:layout_width="0dp"

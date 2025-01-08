@@ -13,12 +13,13 @@ public class HistoryEntry {
     private boolean noAccess;
     private String previousDate;
     private boolean noChanges;
+    private boolean perdido;
 
     public HistoryEntry() {
         // Constructor vacío necesario para Firebase
     }
 
-    public HistoryEntry(String date, String trapType, String poisonType, int poisonAmount, boolean consumption, int consumptionPercentage, boolean replace, int replaceAmount, String replacePoisonType, boolean noAccess, String previousDate, boolean noChanges) {
+    public HistoryEntry(String date, String trapType, String poisonType, int poisonAmount, boolean consumption, int consumptionPercentage, boolean replace, int replaceAmount, String replacePoisonType, boolean noAccess, String previousDate, boolean noChanges, boolean perdido) {
         this.date = date;
         this.trapType = trapType;
         this.poisonType = poisonType;
@@ -31,6 +32,7 @@ public class HistoryEntry {
         this.noAccess = noAccess;
         this.previousDate = previousDate;
         this.noChanges = noChanges;
+        this.perdido = perdido;
 
     }
 
@@ -130,6 +132,16 @@ public class HistoryEntry {
 
     public void setNoChanges(boolean noChanges) {
         this.noChanges = noChanges;
+    }
+
+    // Getter
+    public boolean isPerdido() {
+        return perdido;
+    }
+
+    // Setter
+    public void setPerdido(boolean perdido) {
+        this.perdido = perdido;
     }
 
 }

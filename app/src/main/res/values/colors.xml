@@ -13,6 +13,11 @@
     <color name="colorBorderInaccesible">#CC4444</color>
     <color name="colorBorderInaccesibleDisabled">#CC8888</color>
 
+    <color name="colorLost">#6C6C6C</color>
+    <color name="colorLostDisabled">#737070</color>
+    <color name="colorBorderLost">#3D3C3C</color>
+    <color name="colorBorderLostDisabled">#737070</color>
+
     <color name="colorAccesible">#55FF55</color>
     <color name="colorAccesibleDisabled">#AAFFAA</color>
     <color name="colorBorderAccesible">#44CC44</color>
