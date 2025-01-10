@@ -152,44 +152,46 @@ public class PestCalculationActivity extends AppCompatActivity {
                 String codigoEmpresa = dataSnapshot.getKey();  // Obtener el código de empresa de la referencia actual
                 String fecha = dataSnapshot.child("fecha").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(150, 702);  // Coordenadas aproximadas para FECHA
+                pdfCanvas.moveText(150, 675);  // Coordenadas aproximadas para FECHA
                 pdfCanvas.showText(fecha);
                 pdfCanvas.endText();
 
                 String nombre = dataSnapshot.child("nombre").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(150, 690);  // Coordenadas aproximadas para USUARIO (nombre de la empresa)
+                pdfCanvas.moveText(150, 664);  // Coordenadas aproximadas para USUARIO (nombre de la empresa)
                 pdfCanvas.showText(nombre);
-                pdfCanvas.endText();
-
-                String ubicacion = dataSnapshot.child("ubicacion").getValue(String.class);
-                pdfCanvas.beginText();
-                pdfCanvas.moveText(150, 668);  // Coordenadas aproximadas para DIRECCION
-                pdfCanvas.showText(ubicacion);
-                pdfCanvas.endText();
-
-                String rubro = dataSnapshot.child("rubro").getValue(String.class);
-                pdfCanvas.beginText();
-                pdfCanvas.moveText(150, 655);  // Coordenadas aproximadas para RUBRO
-                pdfCanvas.showText(rubro);
                 pdfCanvas.endText();
 
                 Long rucLong = dataSnapshot.child("ruc").getValue(Long.class); // Cambia a Long
                 String ruc = rucLong != null ? String.valueOf(rucLong) : ""; // Convertir a String
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(150, 679);  // Coordenadas aproximadas para RUC
+                pdfCanvas.moveText(150, 653);  // Coordenadas aproximadas para RUC
                 pdfCanvas.showText("" + ruc);
                 pdfCanvas.endText();
 
+                String ubicacion = dataSnapshot.child("ubicacion").getValue(String.class);
+                pdfCanvas.beginText();
+                pdfCanvas.moveText(150, 642);  // Coordenadas aproximadas para DIRECCION
+                pdfCanvas.showText(ubicacion);
+                pdfCanvas.endText();
+
+                String rubro = dataSnapshot.child("rubro").getValue(String.class);
+                pdfCanvas.beginText();
+                pdfCanvas.moveText(150, 630);  // Coordenadas aproximadas para RUBRO
+                pdfCanvas.showText(rubro);
+                pdfCanvas.endText();
+
+
+
                 String horaIngreso = dataSnapshot.child("horaIngreso").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(105, 526);  // Coordenadas aproximadas para hora de ingreso
+                pdfCanvas.moveText(105, 502);  // Coordenadas aproximadas para hora de ingreso
                 pdfCanvas.showText("" + formatTime(horaIngreso));
                 pdfCanvas.endText();
 
                 String horaSalida = dataSnapshot.child("horaSalida").getValue(String.class);
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(118, 512);  // Coordenadas aproximadas para hora de salida
+                pdfCanvas.moveText(118, 487);  // Coordenadas aproximadas para hora de salida
                 pdfCanvas.showText("" + formatTime(horaSalida));
                 pdfCanvas.endText();
 
@@ -202,7 +204,7 @@ public class PestCalculationActivity extends AppCompatActivity {
                 }
 
 
-                int posY = 620;  // Coordenada Y inicial donde comenzarán a plasmarse los resultados
+                int posY = 590;  // Coordenada Y inicial donde comenzarán a plasmarse los resultados
                 for (DataSnapshot resultSnapshot : dataSnapshot.child("developed_activities").child("datosVisit").child("visitResults").getChildren()) {
                     String result = resultSnapshot.getValue(String.class);
 
@@ -222,7 +224,7 @@ public class PestCalculationActivity extends AppCompatActivity {
                 pdfCanvas.endText();
 
                 // Colocar Técnico y Operador técnico
-                int posYtech = 475; // Coordenada Y inicial para listar técnicos
+                int posYtech = 450; // Coordenada Y inicial para listar técnicos
                 for (String technician : selectedTechnicians) {
                     String technicianText = "\u2713 " + technician; // Símbolo de viñeta ✓ y nombre del técnico
 

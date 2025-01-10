@@ -304,61 +304,61 @@ public class ServiceReportActivity extends AppCompatActivity {
 
         // Cliente
         pdfCanvas.beginText();
-        pdfCanvas.moveText(275, 680);
+        pdfCanvas.moveText(290, 645);
         pdfCanvas.showText(enterpriseName);
         pdfCanvas.endText();
 
         // Dirección
         pdfCanvas.beginText();
-        pdfCanvas.moveText(275, 654);
+        pdfCanvas.moveText(290, 625);
         pdfCanvas.showText(location);
         pdfCanvas.endText();
 
         // Fecha
         pdfCanvas.beginText();
-        pdfCanvas.moveText(275, 635);
+        pdfCanvas.moveText(290, 603);
         pdfCanvas.showText(date);
         pdfCanvas.endText();
 
         // Hora de inicio
         pdfCanvas.beginText();
-        pdfCanvas.moveText(275, 613);
+        pdfCanvas.moveText(290, 580);
         pdfCanvas.showText(startTime);
         pdfCanvas.endText();
 
 
         pdfCanvas.beginText();
-        pdfCanvas.moveText(440, 635);
+        pdfCanvas.moveText(440, 603);
         pdfCanvas.showText(area);
         pdfCanvas.endText();
 
         // Hora de término
         pdfCanvas.beginText();
-        pdfCanvas.moveText(440, 613);
+        pdfCanvas.moveText(440, 580);
         pdfCanvas.showText(endTimeToUse);
         pdfCanvas.endText();
 
         // Número de estaciones
         pdfCanvas.beginText();
-        pdfCanvas.moveText(110, 480);
+        pdfCanvas.moveText(150, 470);
         pdfCanvas.showText(estaciones);
         pdfCanvas.endText();
 
         // Cebos consumidos
         pdfCanvas.beginText();
-        pdfCanvas.moveText(110, 310);
+        pdfCanvas.moveText(150, 300);
         pdfCanvas.showText(cebosConsumidos);
         pdfCanvas.endText();
 
         // Cebos repuestos
         pdfCanvas.beginText();
-        pdfCanvas.moveText(110, 265);
+        pdfCanvas.moveText(150, 275);
         pdfCanvas.showText(cebosRepuestas);
         pdfCanvas.endText();
 
         // Trampas activadas
         pdfCanvas.beginText();
-        pdfCanvas.moveText(110, 235);
+        pdfCanvas.moveText(150, 247);
         pdfCanvas.showText(String.valueOf(trampasActivadas));
         pdfCanvas.endText();
 
@@ -379,7 +379,7 @@ public class ServiceReportActivity extends AppCompatActivity {
 
             // Dibujar el texto con viñetas en el PDF
             pdfCanvas.beginText();
-            pdfCanvas.moveText(230, 580); // Ajustar la posición según el layout
+            pdfCanvas.moveText(240, 550); // Ajustar la posición según el layout
 
             // Añadir lógica para manejar el salto de línea si el texto es largo
             String[] lines = resultsWithBullets.split("\n");
@@ -393,20 +393,20 @@ public class ServiceReportActivity extends AppCompatActivity {
 
 
         pdfCanvas.beginText();
-        pdfCanvas.moveText(280, 120); // Ajustar posición según el layout
+        pdfCanvas.moveText(280, 137); // Ajustar posición según el layout
         pdfCanvas.showText(selectedTechnician);
         pdfCanvas.endText();
 
         // Agregar nombre del cliente
         pdfCanvas.beginText();
-        pdfCanvas.moveText(450, 120); // Ajusta la posición según el layout
+        pdfCanvas.moveText(435, 137); // Ajusta la posición según el layout
         pdfCanvas.showText(clientName);
         pdfCanvas.endText();
 
         Paragraph observationsParagraph = new Paragraph(observations)
                 .setTextAlignment(TextAlignment.LEFT)  // Alineación del texto
                 .setFontSize(10)  // Tamaño de la fuente
-                .setFixedPosition(220, 210, 300);  // Establece la posición y el ancho máximo del texto
+                .setFixedPosition(245, 220, 300);  // Establece la posición y el ancho máximo del texto
 
         // Añadir el Paragraph al documento
         document.add(observationsParagraph);
@@ -415,13 +415,13 @@ public class ServiceReportActivity extends AppCompatActivity {
         markSelectedActivity(pdfCanvas, activity);
 
         // Cebo
-        markSelectedOptions(pdfCanvas, selectedCebos, 110, 456, R.array.cebos_array);
+        markSelectedOptions(pdfCanvas, selectedCebos, 140, 440, R.array.cebos_array);
 
         // Trampa
-        markSelectedOptions(pdfCanvas, selectedTrampas, 110, 214, R.array.trampas_array);
+        markSelectedOptions(pdfCanvas, selectedTrampas, 140, 220, R.array.trampas_array);
 
         // Roedor
-        markSelectedOptions(pdfCanvas, selectedRoedores, 110, 118, R.array.roedor_array);
+        markSelectedOptions(pdfCanvas, selectedRoedores, 140, 130, R.array.roedor_array);
 
         document.close();
         Toast.makeText(this, "PDF generado: " + pdfFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
@@ -438,10 +438,10 @@ public class ServiceReportActivity extends AppCompatActivity {
         int yCoordinate = 0;
         switch (selectedActivity) {
             case "Evaluación":
-                yCoordinate = 590;
+                yCoordinate = 562;
                 break;
             case "Instalación":
-                yCoordinate = 565;
+                yCoordinate = 550;
                 break;
             case "Monitoreo":
                 yCoordinate = 540;
@@ -451,7 +451,7 @@ public class ServiceReportActivity extends AppCompatActivity {
                 break;
         }
         pdfCanvas.beginText();
-        pdfCanvas.moveText(73, yCoordinate);  // Ajustar las coordenadas según sea necesario
+        pdfCanvas.moveText(106, yCoordinate);  // Ajustar las coordenadas según sea necesario
         pdfCanvas.showText("X");
         pdfCanvas.endText();
     }
@@ -464,7 +464,7 @@ public class ServiceReportActivity extends AppCompatActivity {
         for (int i = 0; i < optionsArray.length; i++) {
             if (selectedOptions.contains(optionsArray[i])) {
                 pdfCanvas.beginText();
-                pdfCanvas.moveText(startX, startY - (i * 23));  // Ajustar las coordenadas según sea necesario
+                pdfCanvas.moveText(startX, startY - (i * 20));  // Ajustar las coordenadas según sea necesario
                 pdfCanvas.showText("X");
                 pdfCanvas.endText();
             }
