@@ -161,8 +161,8 @@ public class TestPhotosActivity extends AppCompatActivity {
 
             // Coordenadas ajustadas
             float[][] imageCoordinates = {
-                    {150, 450}, {320, 450}, {150, 150}, {320, 150}, // Página 1
-                    {150, 500}, {320, 500}, {150, 200}, {320, 200}  // Página 2
+                    {130, 450}, {330, 450}, {130, 150}, {330, 150}, // Página 1
+                    {130, 500}, {330, 500}, {130, 200}, {330, 200}  // Página 2
             };
 
             for (int i = 0; i < imageUris.length; i++) {

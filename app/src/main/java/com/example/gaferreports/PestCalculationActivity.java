@@ -646,7 +646,7 @@ public class PestCalculationActivity extends AppCompatActivity {
 
         PdfCanvas pdfCanvas = new PdfCanvas(pdfDoc.getFirstPage());
         pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true);
-        pdfCanvas.setFontAndSize(PdfFontFactory.createFont(), 10);
+        pdfCanvas.setFontAndSize(PdfFontFactory.createFont(), 7);
 
         int trapMechanicValue = Integer.parseInt(inputTrapMechanic.getText().toString());
         int glueActivatedValue = Integer.parseInt(inputGlueActivated.getText().toString());
@@ -658,19 +658,19 @@ public class PestCalculationActivity extends AppCompatActivity {
 
         // Colocar el nombre del cliente
         pdfCanvas.beginText();
-        pdfCanvas.moveText(100, 836);  // Coordenadas aproximadas para CLIENTE
+        pdfCanvas.moveText(73, 530);  // Coordenadas aproximadas para CLIENTE
         pdfCanvas.showText(clientName);
         pdfCanvas.endText();
 
         // Colocar la ubicación
         pdfCanvas.beginText();
-        pdfCanvas.moveText(90, 808);  // Coordenadas aproximadas para DIRECCIÓN
+        pdfCanvas.moveText(73, 510);  // Coordenadas aproximadas para DIRECCIÓN
         pdfCanvas.showText(ubicacion);
         pdfCanvas.endText();
 
         // Colocar la fecha
         pdfCanvas.beginText();
-        pdfCanvas.moveText(100, 787);  // Coordenadas aproximadas para FECHA
+        pdfCanvas.moveText(73, 492);  // Coordenadas aproximadas para FECHA
         pdfCanvas.showText(formatFecha(fecha));
         pdfCanvas.endText();
 
@@ -681,14 +681,20 @@ public class PestCalculationActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         DataSnapshot dataSnapshot = task.getResult();  // Aquí obtienes el DataSnapshot
                         List<String> selectedTechnicians = new ArrayList<>();
+
                         for (DataSnapshot techSnapshot : dataSnapshot.getChildren()) {
-                            selectedTechnicians.add(techSnapshot.getValue(String.class));
+                            String technician = techSnapshot.getValue(String.class);
+                            // Excluir "Alexander Gárate" de la lista
+                            if (!"Alexander Gárate".equals(technician)) {
+                                selectedTechnicians.add(technician);
+                            }
                         }
+
                         String techniciansText = String.join(", ", selectedTechnicians);
 
                         // Ahora puedes usar 'techniciansText' en el PDF
                         pdfCanvas.beginText();
-                        pdfCanvas.moveText(100, 770);  // Coordenadas aproximadas para TECNICO
+                        pdfCanvas.moveText(73, 482);  // Coordenadas aproximadas para TECNICO
                         pdfCanvas.showText(techniciansText);
                         pdfCanvas.endText();
                     } else {
@@ -696,113 +702,118 @@ public class PestCalculationActivity extends AppCompatActivity {
                     }
                 });
 
+
         // Colocar el supervisor
         pdfCanvas.beginText();
-        pdfCanvas.moveText(100, 755);  // Coordenadas aproximadas para SUPERVISOR
+        pdfCanvas.moveText(73, 472);  // Coordenadas aproximadas para SUPERVISOR
         pdfCanvas.showText("Alexander Garate");
         pdfCanvas.endText();
 
         // Colocar la actividad
         pdfCanvas.beginText();
-        pdfCanvas.moveText(100, 738);  // Coordenadas aproximadas para la ACTIVIDAD
+        pdfCanvas.moveText(73, 460);  // Coordenadas aproximadas para la ACTIVIDAD
         pdfCanvas.showText(activity);
         pdfCanvas.endText();
 
         // Colocar la hora de ingreso
         pdfCanvas.beginText();
-        pdfCanvas.moveText(100, 723);  // Coordenadas aproximadas para INICIO
+        pdfCanvas.moveText(73, 449);  // Coordenadas aproximadas para INICIO
         pdfCanvas.showText(formatTime(horaIngreso));
         pdfCanvas.endText();
 
         // Colocar la hora de término
         pdfCanvas.beginText();
-        pdfCanvas.moveText(100, 710);  // Coordenadas aproximadas para TERMINO
+        pdfCanvas.moveText(73, 438);  // Coordenadas aproximadas para TERMINO
         pdfCanvas.showText(formatTime(horaSalida));
         pdfCanvas.endText();
 
+        ///////////////////////////////////////////////
+
         // Colocar la cantidad
         pdfCanvas.beginText();
-        pdfCanvas.moveText(510, 836);  // Coordenadas aproximadas para CANTIDAD TOTAL
+        pdfCanvas.moveText(350, 530);  // Coordenadas aproximadas para CANTIDAD TOTAL
         pdfCanvas.showText(String.valueOf(cantidad));
         pdfCanvas.endText();
 
         // Colocar trampas sin movimiento
         pdfCanvas.beginText();
-        pdfCanvas.moveText(510, 787);  // Coordenadas aproximadas para trampas sin movimiento
+        pdfCanvas.moveText(350, 492);  // Coordenadas aproximadas para trampas sin movimiento
         pdfCanvas.showText(String.valueOf(trampasSinMovimiento));
         pdfCanvas.endText();
 
         // Colocar trampas con consumo de cebo
         pdfCanvas.beginText();
-        pdfCanvas.moveText(510, 770);  // Coordenadas aproximadas para trampas con consumo de cebo
+        pdfCanvas.moveText(350, 482);  // Coordenadas aproximadas para trampas con consumo de cebo
         pdfCanvas.showText(String.valueOf(trampasConConsumo));
         pdfCanvas.endText();
 
         // Colocar trampas sin acceso
         pdfCanvas.beginText();
-        pdfCanvas.moveText(510, 755);  // Coordenadas aproximadas para trampas sin acceso
+        pdfCanvas.moveText(350, 472);  // Coordenadas aproximadas para trampas sin acceso
         pdfCanvas.showText(String.valueOf(trampasSinAcceso));
         pdfCanvas.endText();
 
         // Colocar Trampa Mecánica
         pdfCanvas.beginText();
-        pdfCanvas.moveText(510, 738);  // Coordenadas para Trampa mecánica
+        pdfCanvas.moveText(350, 460);  // Coordenadas para Trampa mecánica
         pdfCanvas.showText(trapMechanicText);
         pdfCanvas.endText();
 
         // Colocar Goma adhesiva activada
         pdfCanvas.beginText();
-        pdfCanvas.moveText(510, 723);  // Coordenadas para Goma adhesiva activada
+        pdfCanvas.moveText(350, 449);  // Coordenadas para Goma adhesiva activada
         pdfCanvas.showText(glueActivatedText);
         pdfCanvas.endText();
 
         // Colocar Roedores encontrados
         pdfCanvas.beginText();
-        pdfCanvas.moveText(510, 710);  // Coordenadas para Roedores encontrados
+        pdfCanvas.moveText(350, 438);  // Coordenadas para Roedores encontrados
         pdfCanvas.showText(rodentsFoundText);
         pdfCanvas.endText();
 
+        ///////////////////////////////////////////////
+
         // Colocar la cantidad instalada
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 836);  // Coordenadas aproximadas para CANTIDAD INSTALADA
+        pdfCanvas.moveText(510, 530);  // Coordenadas aproximadas para CANTIDAD INSTALADA
         pdfCanvas.showText(String.valueOf(cantidadInstalada));
         pdfCanvas.endText();
 
         // Colocar la cantidad consumida (cebos_consumidos)
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 808);  // Coordenadas aproximadas para CANTIDAD CONSUMIDA
+        pdfCanvas.moveText(510, 510);  // Coordenadas aproximadas para CANTIDAD CONSUMIDA
         pdfCanvas.showText(String.valueOf(cebosConsumidos));
         pdfCanvas.endText();
 
         // Colocar la cantidad de cebos repuestos (cebos_repuestas)
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 878);  // Coordenadas aproximadas para CANTIDAD REPUESTA
+        pdfCanvas.moveText(510, 492);  // Coordenadas aproximadas para CANTIDAD REPUESTA
         pdfCanvas.showText(String.valueOf(cebosRepuestos));
         pdfCanvas.endText();
 
         //////////////////////////////
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 770);  // Coordenadas ajustadas para mostrar el tipo de cebo
+        pdfCanvas.moveText(510, 482);  // Coordenadas ajustadas para mostrar el tipo de cebo
         pdfCanvas.showText("" + inputTipoCebo.getText().toString());
         pdfCanvas.endText();
 
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 755);  // Coordenadas ajustadas para mostrar el peso
+        pdfCanvas.moveText(510, 472);  // Coordenadas ajustadas para mostrar el peso
         pdfCanvas.showText("" + inputPeso.getText().toString() + "");
         pdfCanvas.endText();
 
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 738);  // Coordenadas ajustadas para compuesto activo
+        pdfCanvas.moveText(510, 460);  // Coordenadas ajustadas para compuesto activo
         pdfCanvas.showText("" + inputCompuestoActivo.getText().toString());
         pdfCanvas.endText();
 
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 723);  // Coordenadas ajustadas para vencimiento
+        pdfCanvas.moveText(510, 449);  // Coordenadas ajustadas para vencimiento
         pdfCanvas.showText("" + inputVencimiento.getText().toString());
         pdfCanvas.endText();
 
         pdfCanvas.beginText();
-        pdfCanvas.moveText(710, 710);  // Coordenadas ajustadas para número de lote
+        pdfCanvas.moveText(510, 438);  // Coordenadas ajustadas para número de lote
         pdfCanvas.showText("" + inputNroLote.getText().toString());
         pdfCanvas.endText();
 
@@ -812,7 +823,7 @@ public class PestCalculationActivity extends AppCompatActivity {
         ref.child("trampas").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int posY = 638; // Coordenada Y para la posición del texto de las trampas
+                float posY = 388.0f ;
                 int trapsCount = 0;
 
                 for (DataSnapshot trapSnapshot : snapshot.getChildren()) {
@@ -835,55 +846,55 @@ public class PestCalculationActivity extends AppCompatActivity {
                     pdfCanvas.saveState();
                     pdfCanvas.setExtGState(transparentState);
 
-                    if (Boolean.TRUE.equals(noAccess) && !Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido) && !Boolean.TRUE.equals(replace) && !Boolean.TRUE.equals(consumption)) {
+                    if (Boolean.TRUE.equals(noAccess) && Boolean.FALSE.equals(noChanges) && Boolean.FALSE.equals(perdido) && Boolean.FALSE.equals(replace) && Boolean.FALSE.equals(consumption)) {
                         pdfCanvas.setColor(new DeviceRgb(255, 255, 0), true); // Amarillo
-                    } else if (!Boolean.TRUE.equals(noAccess) && Boolean.TRUE.equals(replace) && !Boolean.TRUE.equals(consumption) && !Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido)) {
+                    } else if (Boolean.FALSE.equals(noAccess) && Boolean.FALSE.equals(noChanges) && Boolean.FALSE.equals(perdido) && Boolean.TRUE.equals(replace) && Boolean.FALSE.equals(consumption)) {
                         pdfCanvas.setColor(new DeviceRgb(0, 255, 255), true); // Celeste
-                    } else if (!Boolean.TRUE.equals(noAccess) && Boolean.TRUE.equals(replace) && Boolean.TRUE.equals(consumption) && !Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido)) {
+                    } else if (Boolean.FALSE.equals(noAccess) && Boolean.FALSE.equals(noChanges) && Boolean.FALSE.equals(perdido) && Boolean.TRUE.equals(replace) && Boolean.TRUE.equals(consumption)) {
                         pdfCanvas.setColor(new DeviceRgb(255, 0, 0), true); // Rojo
-                    } else if (!Boolean.TRUE.equals(noAccess) && Boolean.TRUE.equals(noChanges) && !Boolean.TRUE.equals(perdido)) {
+                    } else if (Boolean.FALSE.equals(noAccess) && Boolean.TRUE.equals(noChanges) && Boolean.FALSE.equals(perdido)) {
                         pdfCanvas.setColor(new DeviceRgb(255, 255, 255), true); // Blanco
-                    } else if (!Boolean.TRUE.equals(noAccess) && !Boolean.TRUE.equals(noChanges) && Boolean.TRUE.equals(perdido)) {
+                    } else if (Boolean.FALSE.equals(noAccess) && Boolean.FALSE.equals(noChanges) && Boolean.TRUE.equals(perdido)) {
                         pdfCanvas.setColor(new DeviceRgb(128, 128, 128), true); // Plomo
                     } else {
-                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Negro por defecto
+                        pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Negro (por defecto)
                     }
 
-                    pdfCanvas.rectangle(95, posY - 5, 321, 13); // Dibujar rectángulo
+                    pdfCanvas.rectangle(70, posY - 2, 226, 9); // Dibujar rectángulo
                     pdfCanvas.fill();
                     pdfCanvas.restoreState();
                     pdfCanvas.setColor(new DeviceRgb(0, 0, 0), true); // Color texto
 
                     // Mostrar datos
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(95, posY);
+                    pdfCanvas.moveText(73, posY);
                     pdfCanvas.showText(trapType == null ? "Inaccesible" : trapType);
                     pdfCanvas.endText();
 
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(200, posY);
+                    pdfCanvas.moveText(130, posY);
                     pdfCanvas.showText(String.valueOf(poisonAmount));
                     pdfCanvas.endText();
 
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(250, posY);
+                    pdfCanvas.moveText(180, posY);
                     pdfCanvas.showText(consumptionPercentage + "%");
                     pdfCanvas.endText();
 
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(300, posY);
+                    pdfCanvas.moveText(240, posY);
                     pdfCanvas.showText(replaceAmount == 0 ? "--" : String.valueOf(replaceAmount));
                     pdfCanvas.endText();
 
                     pdfCanvas.beginText();
-                    pdfCanvas.moveText(350, posY);
+                    pdfCanvas.moveText(260, posY);
                     pdfCanvas.showText(formatShortDate(date));
                     pdfCanvas.endText();
 
-                    posY -= 15;
+                    posY -= 10.5f;
 
                     if (trapsCount == 24) {
-                        posY = 950; // Reiniciar posición Y
+                        posY = 388; // Reiniciar posición Y
                     }
                     trapsCount++;
                 }
