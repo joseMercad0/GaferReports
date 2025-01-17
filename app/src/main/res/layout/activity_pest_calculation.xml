@@ -49,6 +49,7 @@
             android:visibility="gone" />
 
 
+
         <!-- Trampa mecánica -->
         <TextView
             android:layout_width="wrap_content"
