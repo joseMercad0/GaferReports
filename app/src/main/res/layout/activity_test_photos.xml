@@ -10,73 +10,31 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <LinearLayout
+        <GridLayout
+            android:id="@+id/grid_images"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:columnCount="2"
+            android:rowCount="4"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"
+            >
+            <!-- Los ImageView se agregarán dinámicamente -->
+        </GridLayout>
 
-            <ImageView
-                android:id="@+id/imageView1"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-            <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-            <ImageView
-                android:id="@+id/imageView6"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-            <ImageView
-                android:id="@+id/imageView7"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-            <ImageView
-                android:id="@+id/imageView8"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/image_placeholder" />
-
-        </LinearLayout>
     </ScrollView>
+
+    <Button
+        android:id="@+id/btn_select_images"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Seleccionar imágenes"
+        android:layout_marginBottom="8dp" />
 
     <Button
         android:id="@+id/btn_generate_pdf"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Generate PDF" />
+        android:text="Generar PDF" />
 </LinearLayout>

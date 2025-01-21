@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +41,7 @@ import com.itextpdf.layout.property.UnitValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,11 +50,10 @@ import java.util.List;
 
 public class TestPhotosActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
-    private ImageView[] imageViews = new ImageView[8];
-    private Uri[] imageUris = new Uri[8];
-    private int currentImageIndex = 0;
+    private List<Uri> imageUris = new ArrayList<>();
+    private GridLayout gridImages;
     private String enterpriseCode;
-    private String enterpriseName;  // Dynamically fetched company name
+    private String enterpriseName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,46 +63,28 @@ public class TestPhotosActivity extends AppCompatActivity {
         enterpriseCode = getIntent().getStringExtra("enterpriseCode");
         if (enterpriseCode == null) {
             Toast.makeText(this, "Enterprise code not found", Toast.LENGTH_SHORT).show();
-            finish(); // Optional: Close the activity if no code is found
+            finish();
+            return;
         }
-
 
         enterpriseCode = getIntent().getStringExtra("enterpriseCode");
         fetchCompanyName();  // Fetch the company name dynamically
 
-        // Initialize ImageViews
-        imageViews[0] = findViewById(R.id.imageView1);
-        imageViews[1] = findViewById(R.id.imageView2);
-        imageViews[2] = findViewById(R.id.imageView3);
-        imageViews[3] = findViewById(R.id.imageView4);
-        imageViews[4] = findViewById(R.id.imageView5);
-        imageViews[5] = findViewById(R.id.imageView6);
-        imageViews[6] = findViewById(R.id.imageView7);
-        imageViews[7] = findViewById(R.id.imageView8);
+        gridImages = findViewById(R.id.grid_images);
+        Button btnSelectImages = findViewById(R.id.btn_select_images);
+        Button btnGeneratePdf = findViewById(R.id.btn_generate_pdf);
 
-        // Set up click listener for image selection
-        for (int i = 0; i < imageViews.length; i++) {
-            int index = i;
-            imageViews[i].setOnClickListener(v -> {
-                currentImageIndex = index;
-                openFileChooser();
-            });
-        }
+        // Seleccionar imágenes
+        btnSelectImages.setOnClickListener(v -> openFileChooser());
 
-        // Generate PDF button
-        Button generatePdfButton = findViewById(R.id.btn_generate_pdf);
-        generatePdfButton.setOnClickListener(v -> {
-            if (areImagesSelected()) {
-                generatePdfWithImages();  // Genera el PDF
-                // Regresar a la actividad anterior (MenuActivity)
-                Intent intent = new Intent(TestPhotosActivity.this, MenuActivity.class);
-                startActivity(intent);
-                finish();  // Termina la actividad actual (TestPhotosActivity)
+        // Generar PDF
+        btnGeneratePdf.setOnClickListener(v -> {
+            if (imageUris.size() == 8) {
+                generatePdfWithImages();
             } else {
-                Toast.makeText(this, "Por favor selecciona al menos una imagen", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Por favor selecciona 8 imágenes.", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private void fetchCompanyName() {
@@ -125,28 +108,47 @@ public class TestPhotosActivity extends AppCompatActivity {
 
 
     private void openFileChooser() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Selecciona una imagen"), PICK_IMAGE_REQUEST);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Selecciona hasta 8 imágenes"), PICK_IMAGE_REQUEST);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUris[currentImageIndex] = data.getData();
-            imageViews[currentImageIndex].setImageURI(imageUris[currentImageIndex]);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
+            imageUris.clear();
+            gridImages.removeAllViews(); // Limpiar vista previa anterior
+
+            if (data.getClipData() != null) {
+                int count = data.getClipData().getItemCount();
+                for (int i = 0; i < count && i < 8; i++) {
+                    Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                    imageUris.add(imageUri);
+                    addImageToGrid(imageUri);
+                }
+            } else if (data.getData() != null) {
+                imageUris.add(data.getData());
+                addImageToGrid(data.getData());
+            }
+
+            if (imageUris.size() < 8) {
+                Toast.makeText(this, "Por favor selecciona al menos 8 imágenes.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
-    private boolean areImagesSelected() {
-        for (Uri uri : imageUris) {
-            if (uri != null) {
-                return true;
-            }
-        }
-        return false;
+    private void addImageToGrid(Uri imageUri) {
+        ImageView imageView = new ImageView(this);
+        imageView.setImageURI(imageUri);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.width = 250;
+        layoutParams.height = 250;
+        layoutParams.setMargins(8, 8, 8, 8);
+        imageView.setLayoutParams(layoutParams);
+        gridImages.addView(imageView);
     }
 
     private void generatePdfWithImages() {
@@ -154,43 +156,48 @@ public class TestPhotosActivity extends AppCompatActivity {
             InputStream inputStream = getAssets().open("ESPACIO FOTOS.pdf");
             PdfReader pdfReader = new PdfReader(inputStream);
 
-            String outputFilePath = getExternalFilesDir(null) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf";
-            PdfWriter pdfWriter = new PdfWriter(outputFilePath);
+            // Rutas del archivo
+            String internalFilePath = getExternalFilesDir(null) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf";
+            String downloadsFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf";
+
+            // Generar PDF
+            PdfWriter pdfWriter = new PdfWriter(internalFilePath);
             PdfDocument pdfDocument = new PdfDocument(pdfReader, pdfWriter);
             Document document = new Document(pdfDocument);
 
-            // Coordenadas ajustadas
-            float[][] imageCoordinates = {
-                    {130, 450}, {330, 450}, {130, 150}, {330, 150}, // Página 1
-                    {130, 500}, {330, 500}, {130, 200}, {330, 200}  // Página 2
+            float[][] coordinates = {
+                    {70, 400}, {310, 400}, // Primera fila de la página 1
+                    {70, 80}, {310, 80}, // Segunda fila de la página 1
+
+                    {70, 400}, {310, 400}, // Primera fila de la página 2
+                    {70, 80}, {310, 80}  // Segunda fila de la página 2
             };
 
-            for (int i = 0; i < imageUris.length; i++) {
-                if (imageUris[i] != null) {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUris[i]);
-                    ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
-                    Image image = new Image(imageData);
-
-                    int pageNumber = (i < 4) ? 1 : 2;
-                    float[] coords = imageCoordinates[i];
-                    image.setFixedPosition(pageNumber, coords[0], coords[1]);
-                    image.scaleToFit(250, 250); // Escalar la imagen
-
-                    document.add(image);
-                }
+            for (int i = 0; i < imageUris.size(); i++) {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUris.get(i));
+                ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
+                Image image = new Image(imageData);
+                float[] coords = coordinates[i];
+                image.setFixedPosition((i < 4) ? 1 : 2, coords[0], coords[1]);
+                image.scaleToFit(300, 300);
+                document.add(image);
             }
 
             document.close();
-            pdfReader.close();
-            pdfWriter.close();
 
-            Toast.makeText(this, "PDF generado exitosamente: " + outputFilePath, Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(TestPhotosActivity.this, MenuActivity.class);
+            intent.putExtra("enterpriseCode", enterpriseCode);
+            startActivity(intent);
+            finish();
+
+            copyFileToDownloads(internalFilePath, downloadsFilePath);
+            openGeneratedPDF(downloadsFilePath);
+
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
 
     private byte[] bitmapToBytes(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -198,9 +205,44 @@ public class TestPhotosActivity extends AppCompatActivity {
         return outputStream.toByteArray();
     }
 
-    @Override
-    public void onBackPressed() {
-        // Dejar este método vacío o mostrar un mensaje si es necesario.
-        // No llamar a super.onBackPressed() para deshabilitar el comportamiento predeterminado.
+    private void copyFileToDownloads(String sourcePath, String destinationPath) {
+        try {
+            File sourceFile = new File(sourcePath);
+            File destinationFile = new File(destinationPath);
+
+            if (!destinationFile.exists()) {
+                destinationFile.createNewFile();
+            }
+
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            FileInputStream in = new FileInputStream(sourceFile);
+            FileOutputStream out = new FileOutputStream(destinationFile);
+
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+
+            in.close();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al copiar archivo: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void openGeneratedPDF(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(androidx.core.content.FileProvider.getUriForFile(this, getPackageName() + ".provider", file), "application/pdf");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                startActivity(Intent.createChooser(intent, "Abrir PDF con..."));
+            } catch (Exception e) {
+                Toast.makeText(this, "No hay una aplicación para abrir PDF", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
