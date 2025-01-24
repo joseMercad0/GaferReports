@@ -1,5 +1,6 @@
 package com.example.gaferreports;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -45,6 +46,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -177,27 +179,38 @@ public class TestPhotosActivity extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUris.get(i));
                 ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
                 Image image = new Image(imageData);
+
+                // Ajustar tamaño de las imágenes
+                image.scaleToFit(300, 300); // Tamaño más grande
                 float[] coords = coordinates[i];
                 image.setFixedPosition((i < 4) ? 1 : 2, coords[0], coords[1]);
-                image.scaleToFit(300, 300);
                 document.add(image);
             }
 
             document.close();
 
+            // Si todo salió bien, regresar al MenuActivity
+            Toast.makeText(this, "PDF generado exitosamente.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(TestPhotosActivity.this, MenuActivity.class);
             intent.putExtra("enterpriseCode", enterpriseCode);
             startActivity(intent);
             finish();
-
+            
+            // Copiar a Descargas
             copyFileToDownloads(internalFilePath, downloadsFilePath);
+
+            // Abrir el PDF desde Descargas
             openGeneratedPDF(downloadsFilePath);
 
+
+
         } catch (Exception e) {
+            // Mostrar mensaje de error si algo falla
             e.printStackTrace();
-            Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
     private byte[] bitmapToBytes(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -208,29 +221,50 @@ public class TestPhotosActivity extends AppCompatActivity {
     private void copyFileToDownloads(String sourcePath, String destinationPath) {
         try {
             File sourceFile = new File(sourcePath);
-            File destinationFile = new File(destinationPath);
 
-            if (!destinationFile.exists()) {
-                destinationFile.createNewFile();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                // Usamos MediaStore para Android 10+ (API 29+)
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME, "ESPACIO_FOTOS_" + enterpriseName + ".pdf");
+                values.put(MediaStore.Downloads.MIME_TYPE, "application/pdf");
+                values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
+                Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (uri != null) {
+                    try (OutputStream out = getContentResolver().openOutputStream(uri);
+                         FileInputStream in = new FileInputStream(sourceFile)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = in.read(buffer)) > 0) {
+                            out.write(buffer, 0, length);
+                        }
+                    }
+                }
+            } else {
+                // Método tradicional para Android 9 y anteriores
+                File destinationFile = new File(destinationPath);
+                if (!destinationFile.exists()) {
+                    destinationFile.createNewFile();
+                }
+
+                try (FileInputStream in = new FileInputStream(sourceFile);
+                     FileOutputStream out = new FileOutputStream(destinationFile)) {
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, length);
+                    }
+                }
             }
 
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            FileInputStream in = new FileInputStream(sourceFile);
-            FileOutputStream out = new FileOutputStream(destinationFile);
+            Toast.makeText(this, "PDF copiado exitosamente a Descargas", Toast.LENGTH_LONG).show();
 
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
-
-            in.close();
-            out.close();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error al copiar archivo: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error al copiar el archivo: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
     private void openGeneratedPDF(String filePath) {
         File file = new File(filePath);
@@ -245,4 +279,5 @@ public class TestPhotosActivity extends AppCompatActivity {
             }
         }
     }
+
 }
