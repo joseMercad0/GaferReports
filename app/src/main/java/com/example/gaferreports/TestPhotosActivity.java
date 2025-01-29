@@ -4,7 +4,11 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -170,18 +174,21 @@ public class TestPhotosActivity extends AppCompatActivity {
             float[][] coordinates = {
                     {70, 400}, {310, 400}, // Primera fila de la página 1
                     {70, 80}, {310, 80}, // Segunda fila de la página 1
-
                     {70, 400}, {310, 400}, // Primera fila de la página 2
                     {70, 80}, {310, 80}  // Segunda fila de la página 2
             };
 
             for (int i = 0; i < imageUris.size(); i++) {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUris.get(i));
+                Bitmap bitmap = getOptimizedBitmap(imageUris.get(i)); // 🔹 Obtener imagen optimizada
+                if (bitmap == null) {
+                    continue; // Si la imagen no se puede cargar, la ignoramos
+                }
+
                 ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
                 Image image = new Image(imageData);
 
-                // Ajustar tamaño de las imágenes
-                image.scaleToFit(300, 300); // Tamaño más grande
+                // Ajustar tamaño de la imagen
+                image.scaleToFit(300, 300);
                 float[] coords = coordinates[i];
                 image.setFixedPosition((i < 4) ? 1 : 2, coords[0], coords[1]);
                 document.add(image);
@@ -189,27 +196,25 @@ public class TestPhotosActivity extends AppCompatActivity {
 
             document.close();
 
-            // Si todo salió bien, regresar al MenuActivity
+            // Regresar al MenuActivity
             Toast.makeText(this, "PDF generado exitosamente.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(TestPhotosActivity.this, MenuActivity.class);
             intent.putExtra("enterpriseCode", enterpriseCode);
             startActivity(intent);
             finish();
-            
+
             // Copiar a Descargas
             copyFileToDownloads(internalFilePath, downloadsFilePath);
-
             // Abrir el PDF desde Descargas
             openGeneratedPDF(downloadsFilePath);
 
 
-
         } catch (Exception e) {
-            // Mostrar mensaje de error si algo falla
             e.printStackTrace();
             Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
 
     private byte[] bitmapToBytes(Bitmap bitmap) {
@@ -217,6 +222,56 @@ public class TestPhotosActivity extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         return outputStream.toByteArray();
     }
+
+    private Bitmap getOptimizedBitmap(Uri imageUri) {
+        try {
+            // Obtener datos EXIF para detectar orientación
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            ExifInterface exif = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                exif = new ExifInterface(inputStream);
+            }
+
+            // Leer la orientación
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            // Decodificar la imagen con un tamaño manejable (reducimos resolución)
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2; // 🔹 Reduce la imagen a 1/2 de su tamaño original
+            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
+
+            // Aplicar la rotación necesaria
+            return rotateBitmap(bitmap, orientation);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // Retorna null si hay un problema al cargar la imagen
+        }
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+        if (bitmap == null) return null;
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.postRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.postRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.postRotate(270);
+                break;
+            default:
+                return bitmap; // No necesita rotación
+        }
+
+        // Crear un nuevo bitmap rotado
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+
 
     private void copyFileToDownloads(String sourcePath, String destinationPath) {
         try {
