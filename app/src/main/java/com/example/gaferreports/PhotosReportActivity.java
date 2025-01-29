@@ -3,7 +3,11 @@ package com.example.gaferreports;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -153,36 +157,42 @@ public class PhotosReportActivity extends AppCompatActivity {
             String outputFilePath = getExternalFilesDir(null) + "/PhotosReport.pdf";
             PdfWriter pdfWriter = new PdfWriter(outputFilePath);
             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-            Document document = new Document(pdfDocument); // Solo creamos 1 documento y lo cerramos al final
+            Document document = new Document(pdfDocument);
 
-            // Definir las posiciones de las imágenes en cada página
             float[][] coordinates = {
-                    {50, 500}, {300, 500}, // Primera fila
-                    {50, 250}, {300, 250}  // Segunda fila
+                    {70, 400}, {310, 400}, // Primera fila de la página 1
+                    {70, 80}, {310, 80}, // Segunda fila
             };
 
             int imageCount = 0;
             for (Uri uri : imageUris) {
-                // Si es la primera imagen o cada 4 imágenes, agregamos una nueva página basada en la plantilla
+                // Si es la primera imagen o cada 4 imágenes, creamos una nueva página
                 if (imageCount % 4 == 0) {
-                    PdfPage templatePage = templatePdf.getPage(1).copyTo(pdfDocument); // Copiamos la plantilla
-                    pdfDocument.addPage(templatePage);
+                    PdfPage newPage = pdfDocument.addNewPage();
+                    PdfCanvas canvas = new PdfCanvas(newPage);
+
+                    // 📌 Copiar el encabezado
+                    PdfPage templatePage = templatePdf.getPage(1);
+                    canvas.addXObject(templatePage.copyAsFormXObject(pdfDocument), 0, 0);
                 }
 
                 // Obtener la página actual donde agregaremos la imagen
                 PdfPage currentPage = pdfDocument.getPage(pdfDocument.getNumberOfPages());
-                PdfCanvas canvas = new PdfCanvas(currentPage);
 
-                // Convertir la imagen
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                // Convertir la imagen y optimizarla
+                Bitmap bitmap = getOptimizedBitmap(uri);
+                if (bitmap == null) continue;
+
                 ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
+                Image image = new Image(imageData);
 
-                // Obtener la posición correcta
+                // Configurar tamaño y posición
                 float[] coords = coordinates[imageCount % 4];
+                image.scaleToFit(300, 300);
+                image.setFixedPosition(pdfDocument.getNumberOfPages(), coords[0], coords[1]);
 
-                // Dibujar la imagen en la página actual
-                Rectangle rect = new Rectangle(coords[0], coords[1], 200, 200); // Tamaño de imagen 200x200
-                canvas.addImageFittedIntoRectangle(imageData, rect, true);
+                // Añadir imagen al documento
+                document.add(image);
 
                 imageCount++;
             }
@@ -191,17 +201,9 @@ public class PhotosReportActivity extends AppCompatActivity {
             document.close();
             templatePdf.close();
 
-            Toast.makeText(this, "PDF generado exitosamente.", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(PhotosReportActivity.this, MenuActivity.class);
-            intent.putExtra("enterpriseCode", enterpriseCode);
-            startActivity(intent);
-            finish();
-
-            // Copiar a Descargas
+            // Copiar a Descargas y abrir el PDF
             String downloadsFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/PhotosReport.pdf";
             copyFileToDownloads(outputFilePath, downloadsFilePath);
-
-            // Abrir PDF automáticamente
             openGeneratedPDF(downloadsFilePath);
 
             Toast.makeText(this, "PDF generado en: " + downloadsFilePath, Toast.LENGTH_LONG).show();
@@ -211,6 +213,55 @@ public class PhotosReportActivity extends AppCompatActivity {
             Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    private Bitmap getOptimizedBitmap(Uri imageUri) {
+        try {
+            // Obtener datos EXIF para detectar orientación
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            ExifInterface exif = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                exif = new ExifInterface(inputStream);
+            }
+
+            // Leer la orientación
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            // Decodificar la imagen con un tamaño manejable
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2; // Reducimos el tamaño de la imagen
+            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
+
+            // Aplicar la rotación necesaria
+            return rotateBitmap(bitmap, orientation);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+        if (bitmap == null) return null;
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.postRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.postRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.postRotate(270);
+                break;
+            default:
+                return bitmap;
+        }
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+
 
     private void copyFileToDownloads(String sourcePath, String destinationPath) {
         try {
