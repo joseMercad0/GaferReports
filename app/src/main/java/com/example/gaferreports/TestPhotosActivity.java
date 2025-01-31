@@ -1,8 +1,9 @@
 package com.example.gaferreports;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -12,11 +13,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,27 +27,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.property.AreaBreakType;
-import com.itextpdf.layout.property.HorizontalAlignment;
-import com.itextpdf.layout.property.TextAlignment;
-import com.itextpdf.layout.property.UnitValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -61,11 +53,23 @@ public class TestPhotosActivity extends AppCompatActivity {
     private String enterpriseCode;
     private String enterpriseName;
 
+    private void requestStoragePermissions() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // Android 9 o inferior
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_photos);
-
+        requestStoragePermissions();
         enterpriseCode = getIntent().getStringExtra("enterpriseCode");
         if (enterpriseCode == null) {
             Toast.makeText(this, "Enterprise code not found", Toast.LENGTH_SHORT).show();
@@ -92,6 +96,8 @@ public class TestPhotosActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     private void fetchCompanyName() {
         if (enterpriseCode == null) {
@@ -161,60 +167,73 @@ public class TestPhotosActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getAssets().open("ESPACIO FOTOS.pdf");
             PdfReader pdfReader = new PdfReader(inputStream);
+            PdfDocument templatePdf = new PdfDocument(pdfReader);
 
-            // Rutas del archivo
-            String internalFilePath = getExternalFilesDir(null) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf";
-            String downloadsFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf";
+            // 🔹 Definir ruta del archivo en la carpeta privada
+            String privateFilePath = getExternalFilesDir(null) + "/ESPACIO_FOTOS_" + enterpriseName + ".pdf";
 
-            // Generar PDF
-            PdfWriter pdfWriter = new PdfWriter(internalFilePath);
-            PdfDocument pdfDocument = new PdfDocument(pdfReader, pdfWriter);
-            Document document = new Document(pdfDocument);
+            // 🔹 Generar el PDF en la carpeta privada
+            PdfWriter privateWriter = new PdfWriter(new FileOutputStream(privateFilePath));
+            PdfDocument privatePdfDocument = new PdfDocument(privateWriter);
+            Document privateDocument = new Document(privatePdfDocument);
 
             float[][] coordinates = {
-                    {70, 400}, {310, 400}, // Primera fila de la página 1
-                    {70, 80}, {310, 80}, // Segunda fila de la página 1
-                    {70, 400}, {310, 400}, // Primera fila de la página 2
-                    {70, 80}, {310, 80}  // Segunda fila de la página 2
+                    {70, 400}, {310, 400},
+                    {70, 80}, {310, 80},
+                    {70, 400}, {310, 400},
+                    {70, 80}, {310, 80}
             };
 
             for (int i = 0; i < imageUris.size(); i++) {
-                Bitmap bitmap = getOptimizedBitmap(imageUris.get(i)); // 🔹 Obtener imagen optimizada
-                if (bitmap == null) {
-                    continue; // Si la imagen no se puede cargar, la ignoramos
+                // 🔹 Si es la primera imagen o cada 4 imágenes, agregamos una nueva página con la plantilla
+                if (i % 4 == 0) {
+                    PdfPage privatePage = privatePdfDocument.addNewPage();
+                    PdfCanvas privateCanvas = new PdfCanvas(privatePage);
+                    PdfPage templatePage = templatePdf.getPage(1);
+                    privateCanvas.addXObject(templatePage.copyAsFormXObject(privatePdfDocument), 0, 0);
                 }
 
-                ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
-                Image image = new Image(imageData);
+                // 🔹 Obtener la página actual donde agregaremos la imagen
+                PdfPage privateCurrentPage = privatePdfDocument.getPage(privatePdfDocument.getNumberOfPages());
 
-                // Ajustar tamaño de la imagen
-                image.scaleToFit(300, 300);
-                float[] coords = coordinates[i];
-                image.setFixedPosition((i < 4) ? 1 : 2, coords[0], coords[1]);
-                document.add(image);
+                // 🔹 Convertir la imagen y optimizarla
+                Bitmap bitmap = getOptimizedBitmap(imageUris.get(i));
+                if (bitmap == null) continue;
+
+                ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
+                Image privateImage = new Image(imageData);
+
+                float[] coords = coordinates[i % 4];
+                privateImage.scaleToFit(300, 300);
+                privateImage.setFixedPosition(privatePdfDocument.getNumberOfPages(), coords[0], coords[1]);
+
+                privateDocument.add(privateImage);
             }
 
-            document.close();
+            // 🔹 Cerrar documentos después de añadir todas las imágenes
+            privateDocument.close();
+            privatePdfDocument.close();
+            templatePdf.close();
 
-            // Regresar al MenuActivity
-            Toast.makeText(this, "PDF generado exitosamente.", Toast.LENGTH_LONG).show();
+            // 🔹 Redirigir al menú SOLO DESPUÉS de que todo haya terminado
+            Toast.makeText(this, "PDF generado en Descargas y en la carpeta privada.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(TestPhotosActivity.this, MenuActivity.class);
             intent.putExtra("enterpriseCode", enterpriseCode);
             startActivity(intent);
             finish();
 
-            // Copiar a Descargas
-            copyFileToDownloads(internalFilePath, downloadsFilePath);
-            // Abrir el PDF desde Descargas
+
+            // 🔹 Guardar PDF en Descargas usando MediaStore
+            String downloadsFilePath = savePdfToDownloads(privateFilePath);
+
             openGeneratedPDF(downloadsFilePath);
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
     private byte[] bitmapToBytes(Bitmap bitmap) {
@@ -319,6 +338,47 @@ public class TestPhotosActivity extends AppCompatActivity {
             Toast.makeText(this, "Error al copiar el archivo: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
+    private String savePdfToDownloads(String privateFilePath) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // Android 10+
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, "ESPACIO_FOTOS_" + enterpriseName + ".pdf");
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
+            Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try (OutputStream out = getContentResolver().openOutputStream(uri);
+                     FileInputStream in = new FileInputStream(new File(privateFilePath))) {
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, length);
+                    }
+                    return uri.getPath(); // 🔹 Devolvemos la ruta del PDF
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } else { // Android 9 o inferior
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File downloadsFile = new File(downloadsDir, "ESPACIO_FOTOS_" + enterpriseName + ".pdf");
+
+            try (FileInputStream in = new FileInputStream(new File(privateFilePath));
+                 FileOutputStream out = new FileOutputStream(downloadsFile)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+                return downloadsFile.getAbsolutePath();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
 
 
     private void openGeneratedPDF(String filePath) {

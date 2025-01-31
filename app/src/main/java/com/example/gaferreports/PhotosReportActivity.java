@@ -1,7 +1,9 @@
 package com.example.gaferreports;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -57,7 +59,7 @@ public class PhotosReportActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photos_report);
-
+        requestStoragePermissions();
         layoutImagePreview = findViewById(R.id.layout_image_preview);
         Button btnSelectImages = findViewById(R.id.btn_select_images);
         Button btnGeneratePdf = findViewById(R.id.btn_generate_pdf);
@@ -84,6 +86,19 @@ public class PhotosReportActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void requestStoragePermissions() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // Android 9 o inferior
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+                    }
+                }
+            }
+        }
+    }
+
 
     private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -151,68 +166,88 @@ public class PhotosReportActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getAssets().open("PAGINA VACIA.pdf");
             PdfReader pdfReader = new PdfReader(inputStream);
-            PdfDocument templatePdf = new PdfDocument(pdfReader); // Abrimos la plantilla
+            PdfDocument templatePdf = new PdfDocument(pdfReader);
 
-            // Archivo PDF de salida
-            String outputFilePath = getExternalFilesDir(null) + "/PhotosReport.pdf";
-            PdfWriter pdfWriter = new PdfWriter(outputFilePath);
-            PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-            Document document = new Document(pdfDocument);
+            // 🔹 Definir rutas de los archivos generados
+            String privateFilePath = getExternalFilesDir(null) + "/PhotosReport.pdf"; // Carpeta privada
+            String downloadsFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/PhotosReport.pdf"; // Carpeta pública
+
+            // 🔹 Generar el PDF en la carpeta privada
+            PdfWriter privateWriter = new PdfWriter(new FileOutputStream(privateFilePath));
+            PdfDocument privatePdfDocument = new PdfDocument(privateWriter);
+            Document privateDocument = new Document(privatePdfDocument);
+
+            // 🔹 Generar el PDF en la carpeta pública (Descargas)
+            PdfWriter downloadsWriter = new PdfWriter(new FileOutputStream(downloadsFilePath));
+            PdfDocument downloadsPdfDocument = new PdfDocument(downloadsWriter);
+            Document downloadsDocument = new Document(downloadsPdfDocument);
 
             float[][] coordinates = {
                     {70, 400}, {310, 400}, // Primera fila de la página 1
-                    {70, 80}, {310, 80}, // Segunda fila
+                    {70, 80}, {310, 80},
             };
 
             int imageCount = 0;
             for (Uri uri : imageUris) {
-                // Si es la primera imagen o cada 4 imágenes, creamos una nueva página
                 if (imageCount % 4 == 0) {
-                    PdfPage newPage = pdfDocument.addNewPage();
-                    PdfCanvas canvas = new PdfCanvas(newPage);
-
-                    // 📌 Copiar el encabezado
+                    PdfPage privatePage = privatePdfDocument.addNewPage();
+                    PdfCanvas privateCanvas = new PdfCanvas(privatePage);
                     PdfPage templatePage = templatePdf.getPage(1);
-                    canvas.addXObject(templatePage.copyAsFormXObject(pdfDocument), 0, 0);
+                    privateCanvas.addXObject(templatePage.copyAsFormXObject(privatePdfDocument), 0, 0);
+
+                    PdfPage downloadsPage = downloadsPdfDocument.addNewPage();
+                    PdfCanvas downloadsCanvas = new PdfCanvas(downloadsPage);
+                    downloadsCanvas.addXObject(templatePage.copyAsFormXObject(downloadsPdfDocument), 0, 0);
                 }
 
-                // Obtener la página actual donde agregaremos la imagen
-                PdfPage currentPage = pdfDocument.getPage(pdfDocument.getNumberOfPages());
+                // 🔹 Obtener la página actual
+                PdfPage privateCurrentPage = privatePdfDocument.getPage(privatePdfDocument.getNumberOfPages());
+                PdfPage downloadsCurrentPage = downloadsPdfDocument.getPage(downloadsPdfDocument.getNumberOfPages());
 
-                // Convertir la imagen y optimizarla
                 Bitmap bitmap = getOptimizedBitmap(uri);
                 if (bitmap == null) continue;
 
                 ImageData imageData = ImageDataFactory.create(bitmapToBytes(bitmap));
-                Image image = new Image(imageData);
+                Image privateImage = new Image(imageData);
+                Image downloadsImage = new Image(imageData);
 
-                // Configurar tamaño y posición
                 float[] coords = coordinates[imageCount % 4];
-                image.scaleToFit(300, 300);
-                image.setFixedPosition(pdfDocument.getNumberOfPages(), coords[0], coords[1]);
+                privateImage.scaleToFit(300, 300);
+                privateImage.setFixedPosition(privatePdfDocument.getNumberOfPages(), coords[0], coords[1]);
 
-                // Añadir imagen al documento
-                document.add(image);
+                downloadsImage.scaleToFit(300, 300);
+                downloadsImage.setFixedPosition(downloadsPdfDocument.getNumberOfPages(), coords[0], coords[1]);
+
+                privateDocument.add(privateImage);
+                downloadsDocument.add(downloadsImage);
 
                 imageCount++;
             }
 
-            // Cerrar documentos después de añadir todas las imágenes
-            document.close();
+            // 🔹 Cerrar documentos después de añadir todas las imágenes
+            privateDocument.close();
+            privatePdfDocument.close();
+            downloadsDocument.close();
+            downloadsPdfDocument.close();
             templatePdf.close();
 
-            // Copiar a Descargas y abrir el PDF
-            String downloadsFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/PhotosReport.pdf";
-            copyFileToDownloads(outputFilePath, downloadsFilePath);
+            Toast.makeText(this, "PDF generado exitosamente.", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(PhotosReportActivity.this, MenuActivity.class);
+            intent.putExtra("enterpriseCode", enterpriseCode);
+            startActivity(intent);
+            finish();
+
+            // 🔹 Abrir el PDF generado en Descargas
             openGeneratedPDF(downloadsFilePath);
 
-            Toast.makeText(this, "PDF generado en: " + downloadsFilePath, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "PDF generado en Descargas y en la carpeta privada.", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error al generar el PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private Bitmap getOptimizedBitmap(Uri imageUri) {
         try {
